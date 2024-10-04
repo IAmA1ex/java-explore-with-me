@@ -24,6 +24,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
         WHERE n.timestamp BETWEEN :start AND :end
         AND (:uris IS NULL OR n.uri IN :uris)
         GROUP BY n.app, n.uri
+        ORDER BY COUNT(DISTINCT n.ip) DESC
     """)
     List<Stat> findByParamsUniqueIsTrue(@Param("start") LocalDateTime start,
                                         @Param("end") LocalDateTime end,
@@ -43,6 +44,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
         WHERE n.timestamp BETWEEN :start AND :end
         AND (:uris IS NULL OR n.uri IN :uris)
         GROUP BY n.app, n.uri
+        ORDER BY COUNT(n.id) DESC
     """)
     List<Stat> findByParamsUniqueIsFalse(@Param("start") LocalDateTime start,
                                          @Param("end") LocalDateTime end,
