@@ -10,11 +10,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import ru.practicum.statsdto.NoteDto;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,16 +37,15 @@ class NoteControllerTest {
     @Test
     void hit() {
         try {
+            NoteDto noteDto = NoteDto.builder()
+                    .app("ewm-main-service")
+                    .uri("/events/1")
+                    .ip("192.163.0.1")
+                    .timestamp(LocalDateTime.now())
+                    .build();
             mockMvc.perform(post("/hit")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                            {
-                              "app": "ewm-main-service",
-                              "uri": "/events/1",
-                              "ip": "192.163.0.1",
-                              "timestamp": "2022-09-06 11:00:23"
-                            }
-                            """))
+                            .content(objectMapper.writeValueAsString(noteDto)))
                     .andExpect(status().is(201));
         } catch (Exception e) {
             fail(e.getMessage());
@@ -121,23 +120,19 @@ class NoteControllerTest {
 
     private void fill(long currentTime) {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(currentTime), ZoneId.systemDefault());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = localDateTime.format(formatter);
         for (int i = 1; i <= 2; i++) {
             for (int j = 1; j <= 2; j++) {
                 for (int k = 0; k < 3; k++) {
                     try {
+                        NoteDto noteDto = NoteDto.builder()
+                                .app(Long.toString(currentTime))
+                                .uri("/" + currentTime + "/" + i)
+                                .ip(String.format("255.%s.255.%d", currentTime, j))
+                                .timestamp(localDateTime)
+                                .build();
                         mockMvc.perform(post("/hit")
                                         .contentType(MediaType.APPLICATION_JSON)
-                                        .content("""
-                                                    {
-                                                      "app": "%s",
-                                                      "uri": "/%s/%d",
-                                                      "ip": "255.%s.255.%d",
-                                                      "timestamp": "%s"
-                                                    }
-                                                  """.formatted(currentTime, currentTime, i, currentTime, j,
-                                                formattedDate)))
+                                        .content(objectMapper.writeValueAsString(noteDto)))
                                 .andExpect(status().is(201));
                     } catch (Exception e) {
                         fail(e.getMessage());
