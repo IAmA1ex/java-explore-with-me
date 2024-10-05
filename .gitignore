@@ -20,3 +20,7 @@ target/
 *.iws
 *.iml
 *.ipr
+
+### DB ###
+**/db/
+
