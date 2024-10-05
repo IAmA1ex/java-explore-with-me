@@ -10,8 +10,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>Stat service</name>
-    <artifactId>stat-service</artifactId>
+    <name>Stat Service</name>
+    <artifactId>stats-service</artifactId>
 
     <dependencies>
 
