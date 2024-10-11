@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.practicum.mainervice.exception.errors.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @RestControllerAdvice
@@ -15,7 +19,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final NotFoundException e) {
-        ErrorResponse errorResponse = new ErrorResponse("Искомый объект не найден.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.NOT_FOUND, e);
         logError(HttpStatus.NOT_FOUND.value(), errorResponse);
         return errorResponse;
     }
@@ -23,7 +27,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicatedData(final DuplicatedDataException e) {
-        ErrorResponse errorResponse = new ErrorResponse("Дублирование уникального поля.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.CONFLICT, e);
         logError(HttpStatus.CONFLICT.value(), errorResponse);
         return errorResponse;
     }
@@ -31,7 +35,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final ValidationException e) {
-        ErrorResponse errorResponse = new ErrorResponse("Ошибка валидации.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.BAD_REQUEST, e);
         logError(HttpStatus.BAD_REQUEST.value(), errorResponse);
         return errorResponse;
     }
@@ -39,7 +43,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final BadRequestException e) {
-        ErrorResponse errorResponse = new ErrorResponse("Ошибка запроса.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.BAD_REQUEST, e);
         logError(HttpStatus.BAD_REQUEST.value(), errorResponse);
         return errorResponse;
     }
@@ -47,7 +51,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ErrorResponse handleForbidden(final ForbiddenException e) {
-        ErrorResponse errorResponse = new ErrorResponse("Запрещено.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.FORBIDDEN, e);
         logError(HttpStatus.FORBIDDEN.value(), errorResponse);
         return errorResponse;
     }
@@ -55,8 +59,8 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleForbidden(final MethodArgumentTypeMismatchException e) {
-        ErrorResponse errorResponse = new ErrorResponse("Unknown state: UNSUPPORTED_STATUS",
-                "Проблемы при конвертации. " + e.getValue());
+        ParentException parentException = new ParentException("Error converting values.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.BAD_REQUEST, parentException);
         logError(HttpStatus.BAD_REQUEST.value(), errorResponse);
         return errorResponse;
     }
@@ -64,19 +68,20 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleRuntimeException(final RuntimeException e) {
-        ErrorResponse privateErrorResponse = new ErrorResponse("Произошла непредвиденная ошибка.",
-                e.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Произошла непредвиденная ошибка.",
-                "Ошибка на стороне сервера.");
-        logError(HttpStatus.INTERNAL_SERVER_ERROR.value(), privateErrorResponse);
+        ParentException parentException = new ParentException("Internal server error.", e.getMessage());
+        ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, parentException);
+        logError(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse);
         return errorResponse;
     }
 
-    @ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleCustomException(final CustomError e) {
-        ErrorResponse errorResponse = e.getErrorResponse();
-        logError(e.getStatus().value(), errorResponse);
-        return new ResponseEntity<>(errorResponse, e.getStatus());
+    private <T extends ParentException> ErrorResponse convertToErrorResponse(HttpStatus httpStatus, T exception) {
+        return ErrorResponse.builder()
+                .errors(List.of())
+                .message(exception.getMessage())
+                .reason(exception.getReason())
+                .status(httpStatus)
+                .timestamp(LocalDateTime.now())
+                .build();
     }
 
     private void logError(int code, ErrorResponse errorResponse) {

@@ -3,7 +3,7 @@ package ru.practicum.mainervice.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.mainervice.exception.NotFoundException;
+import ru.practicum.mainervice.exception.errors.NotFoundException;
 import ru.practicum.mainervice.user.dao.UserRepository;
 import ru.practicum.mainervice.user.dto.UserDto;
 import ru.practicum.mainervice.user.dto.UserMapper;
@@ -36,7 +36,8 @@ public class AdminUserServise {
 
     public void deleteUser(Long userId) {
         if (!userRepository.existsById(userId))
-            throw new NotFoundException("User with id = " + userId + " does not exist.");
+            throw new NotFoundException("There is no such user.",
+                    "User with id = " + userId + " does not exist.");
         userRepository.deleteById(userId);
     }
 }
