@@ -46,4 +46,29 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                       LocalDateTime rangeEnd,
                                       Long from,
                                       Long size);
+
+    @Query("""
+        SELECT e FROM Event e
+        WHERE ((:text IS NULL OR LOWER(e.annotation) LIKE LOWER(CONCAT('%', :text, '%'))) OR
+            (:text IS NULL OR LOWER(e.description) LIKE LOWER(CONCAT('%', :text, '%')))) AND
+            (:categories IS NULL OR e.category IN :categories) AND
+            (:paid IS NULL OR e.paid IN :paid) AND
+            (:rangeStart IS NULL OR e.eventDate >= :rangeStart) AND
+            (:rangeEnd IS NULL OR e.eventDate <= :rangeEnd) AND
+            (:onlyAvailable = false OR (
+                SELECT COUNT(p) FROM Participant p
+                WHERE p.event.id = e.id
+            ) < e.participantLimit) AND
+            (e.state = 'PUBLISHED')
+        ORDER BY e.eventDate DESC
+        LIMIT :size OFFSET :from
+    """)
+    List<Event> findAllByPublicFilters(String text,
+                                       List<Long> categories,
+                                       Boolean paid,
+                                       LocalDateTime rangeStart,
+                                       LocalDateTime rangeEnd,
+                                       Boolean onlyAvailable,
+                                       Long from,
+                                       Long size);
 }

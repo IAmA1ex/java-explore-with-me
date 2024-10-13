@@ -53,7 +53,7 @@ public class PrivateEventsService {
         List<EventShortDto> eventShortDtos = events.stream().map(e -> {
             EventShortDto eventShortDto = eventMapper.toEventShortDto(e);
             eventShortDto.setConfirmedRequests(getConfirmedRequests(e.getId()));
-            eventShortDto.setViews(getViews(e.getPublishedOn(), e.getId()));
+            eventShortDto.setViews(getViews(e.getCreatedOn(), e.getId()));
             return eventShortDto;
         }).toList();
 
@@ -84,7 +84,7 @@ public class PrivateEventsService {
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getPublishedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
 
         log.debug("MAIN: {} was created.", event);
         return eventFullDto;
@@ -102,7 +102,7 @@ public class PrivateEventsService {
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getPublishedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
 
         log.debug("MAIN: {} was found.", event);
         return eventFullDto;
@@ -156,7 +156,7 @@ public class PrivateEventsService {
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getPublishedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
 
         log.debug("MAIN: {} was updated.", event);
         return eventFullDto;
@@ -223,8 +223,8 @@ public class PrivateEventsService {
         return eventRepository.countOfParticipants(eventId);
     }
 
-    private Long getViews(LocalDateTime publishedOn, Long eventId) {
-        return statsClient.getStats(publishedOn, LocalDateTime.now(),
+    private Long getViews(LocalDateTime createdOn, Long eventId) {
+        return statsClient.getStats(createdOn, LocalDateTime.now(),
                 List.of(String.format("/events/%d", eventId)), false).getFirst().getHits();
     }
 }

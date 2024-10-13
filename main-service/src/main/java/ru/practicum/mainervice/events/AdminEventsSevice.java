@@ -109,7 +109,7 @@ public class AdminEventsSevice {
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getPublishedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
 
         log.debug("MAIN: {} was updated.", event);
         return eventFullDto;
@@ -119,8 +119,8 @@ public class AdminEventsSevice {
         return eventRepository.countOfParticipants(eventId);
     }
 
-    private Long getViews(LocalDateTime publishedOn, Long eventId) {
-        return statsClient.getStats(publishedOn, LocalDateTime.now(),
+    private Long getViews(LocalDateTime createdOn, Long eventId) {
+        return statsClient.getStats(createdOn, LocalDateTime.now(),
                 List.of(String.format("/events/%d", eventId)), false).getFirst().getHits();
     }
 }
