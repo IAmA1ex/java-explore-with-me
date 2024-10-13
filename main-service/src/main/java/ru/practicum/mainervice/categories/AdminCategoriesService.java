@@ -7,7 +7,7 @@ import ru.practicum.mainervice.categories.dao.CategoryRepository;
 import ru.practicum.mainervice.categories.dto.CategoryDto;
 import ru.practicum.mainervice.categories.dto.CategoryMapper;
 import ru.practicum.mainervice.categories.model.Category;
-import ru.practicum.mainervice.exception.errors.DuplicatedDataException;
+import ru.practicum.mainervice.exception.errors.ConflictException;
 import ru.practicum.mainervice.exception.errors.NotFoundException;
 
 @Slf4j
@@ -37,7 +37,7 @@ public class AdminCategoriesService {
             throw new NotFoundException("There is no such user.",
                     "Category with id = " + catId + " does not exist.");
         if (categoryRepository.existsByName(categoryDto.getName()))
-            throw new DuplicatedDataException("Such a user already exists.",
+            throw new ConflictException("Such a user already exists.",
                     "Category with name = " + categoryDto.getName() + " already exists.");
         Category category = categoryMapper.toCategory(categoryDto);
         category = categoryRepository.save(category);

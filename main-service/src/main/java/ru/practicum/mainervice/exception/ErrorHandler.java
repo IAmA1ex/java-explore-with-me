@@ -2,7 +2,6 @@ package ru.practicum.mainervice.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,7 +25,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicatedData(final DuplicatedDataException e) {
+    public ErrorResponse handleConflict(final ConflictException e) {
         ErrorResponse errorResponse = convertToErrorResponse(HttpStatus.CONFLICT, e);
         logError(HttpStatus.CONFLICT.value(), errorResponse);
         return errorResponse;
