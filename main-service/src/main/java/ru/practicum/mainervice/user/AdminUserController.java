@@ -16,7 +16,7 @@ public class AdminUserController {
 
     @GetMapping
     public List<UserDto> getUsers(
-            @RequestParam(required = false) final List<String> ids,
+            @RequestParam(required = false) final List<Long> ids,
             @RequestParam(required = false) final Integer from,
             @RequestParam(required = false) final Integer size) {
         return adminUserServise.getUsers(ids, from, size);

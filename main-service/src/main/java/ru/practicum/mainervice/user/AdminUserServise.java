@@ -19,8 +19,10 @@ public class AdminUserServise {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public List<UserDto> getUsers(List<String> ids, Integer from, Integer size) {
-        List<User> users = userRepository.getSortedUsers(ids, from, size);
+    public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
+        List<User> users;
+        if (from == null || size == null) users = userRepository.findAllById(ids);
+        else users = userRepository.getSortedUsers(ids, from, size);
         List<UserDto> userDtos = users.stream().map(userMapper::toUserDto).toList();
         log.debug("MAIN: {} users were received on request", userDtos.size());
         return userDtos;

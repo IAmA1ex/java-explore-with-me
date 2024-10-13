@@ -20,7 +20,9 @@ public class PublicCategoriesService {
     private final CategoryMapper categoryMapper;
 
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        List<Category> categories = categoryRepository.findAllFilter(from, size);
+        List<Category> categories;
+        if (from == null || size == null) categories = categoryRepository.findAll();
+        else categories = categoryRepository.findAllFilter(from, size);
         return categories.stream().map(categoryMapper::toCategoryDto).toList();
     }
 

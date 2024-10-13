@@ -14,5 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
         ORDER BY u.id
         LIMIT :size OFFSET :from
     """)
-    List<User> getSortedUsers(List<String> ids, Integer from, Integer size);
+    List<User> getSortedUsers(List<Long> ids, Integer from, Integer size);
 }
