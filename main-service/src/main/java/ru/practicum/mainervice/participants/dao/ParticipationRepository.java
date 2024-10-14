@@ -9,4 +9,12 @@ import java.util.List;
 public interface ParticipationRepository extends JpaRepository<Participant, Long> {
 
     List<Participant> findAllByEventIdAndStatus(Long userId, EventRequestStatus eventRequestStatus);
+
+    List<Participant> findAllByRequesterId(Long userId);
+
+    boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
+
+    boolean existsByIdAndRequesterId(Long requestId, Long userId);
+
+    boolean existsByIdAndStatusId(Long requestId, Long l);
 }

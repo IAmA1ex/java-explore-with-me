@@ -3,7 +3,6 @@ package ru.practicum.mainervice.events.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.mainervice.events.model.Event;
-import ru.practicum.mainervice.events.model.EventsStates;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,4 +70,17 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                        Boolean onlyAvailable,
                                        Long from,
                                        Long size);
+
+    boolean existsByIdAndStateId(Long eventId, Long i);
+
+    @Query("""
+        SELECT EXISTS(
+            SELECT 1 FROM Event e
+            WHERE e.id = :eventId AND (
+                SELECT COUNT(p) FROM Participant p
+                WHERE p.event.id = e.id
+            ) < e.participantLimit
+        )
+    """)
+    boolean isRequestLimitNotReached(Long eventId);
 }
