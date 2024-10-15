@@ -1,7 +1,6 @@
 package ru.practicum.mainervice.participants.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sun.jdi.request.EventRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

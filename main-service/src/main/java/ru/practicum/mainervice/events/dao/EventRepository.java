@@ -83,4 +83,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
         )
     """)
     boolean isRequestLimitNotReached(Long eventId);
+
+    @Query("""
+        SELECT e FROM Event e
+        WHERE e.id IN :events
+    """)
+    List<Event> getExistingIdsFrom(List<Long> events);
 }
