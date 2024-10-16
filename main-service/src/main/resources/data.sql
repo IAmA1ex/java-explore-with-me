@@ -10,6 +10,10 @@ INSERT INTO participants_statuses (name)
 SELECT 'REJECTED'
 WHERE NOT EXISTS (SELECT 1 FROM participants_statuses WHERE name = 'REJECTED');
 
+INSERT INTO participants_statuses (name)
+SELECT 'CANCELED'
+WHERE NOT EXISTS (SELECT 1 FROM participants_statuses WHERE name = 'CANCELED');
+
 
 
 INSERT INTO events_states (name)
