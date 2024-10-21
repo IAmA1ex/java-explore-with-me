@@ -63,7 +63,7 @@ public class AdminEventsService {
             eventFullDto.setViews(getViews(e.getCreatedOn(), e.getId()));
             return eventFullDto;
         }).toList();
-        log.info("MAIN: {} were found.", events.size());
+        log.debug("MAIN: {} were found.", events.size());
         return eventFullDtos;
     }
 

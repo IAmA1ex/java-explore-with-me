@@ -3,7 +3,6 @@ package ru.practicum.mainservice.events.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Formula;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.events.dto.converters.EventsStateConverter;
 import ru.practicum.mainservice.user.model.User;
@@ -26,14 +25,14 @@ public class Event {
     @ManyToOne
     private User initiator;
 
-    @Column(columnDefinition="VARCHAR(2000)")
+    @Column(columnDefinition = "VARCHAR(2000)")
     private String annotation;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Column(columnDefinition="VARCHAR(7000)")
+    @Column(columnDefinition = "VARCHAR(7000)")
     private String description;
 
     private LocalDateTime eventDate;

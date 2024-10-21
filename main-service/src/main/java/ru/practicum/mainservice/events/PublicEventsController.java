@@ -2,7 +2,6 @@ package ru.practicum.mainservice.events;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainservice.events.dto.EventFullDto;

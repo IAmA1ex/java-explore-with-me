@@ -45,7 +45,7 @@ public class AdminCompilationService {
                 .map(eventMapper::toEventShortDto)
                 .toList();
         compilationDto.setEvents(eventShortDtos);
-        log.info("MAIN: {} was created.", compilationDto);
+        log.debug("MAIN: {} was created.", compilationDto);
         return compilationDto;
     }
 
@@ -58,7 +58,7 @@ public class AdminCompilationService {
             );
 
         compilationRepository.deleteById(compId);
-        log.info("MAIN: {}d Compilation has been deleted.", compId);
+        log.debug("MAIN: {}d Compilation has been deleted.", compId);
     }
 
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
@@ -81,7 +81,7 @@ public class AdminCompilationService {
                 .map(eventMapper::toEventShortDto)
                 .toList();
         compilationDto.setEvents(eventShortDtos);
-        log.info("MAIN: {} was updated.", compilationDto);
+        log.debug("MAIN: {} was updated.", compilationDto);
         return compilationDto;
 
     }

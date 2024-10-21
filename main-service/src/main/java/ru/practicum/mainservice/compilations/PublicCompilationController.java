@@ -1,7 +1,6 @@
 package ru.practicum.mainservice.compilations;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainservice.compilations.dto.CompilationDto;
 

@@ -15,7 +15,6 @@ import ru.practicum.mainservice.events.model.EventsStates;
 import ru.practicum.mainservice.events.model.EventsStatesAction;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
-import ru.practicum.mainservice.exception.errors.ForbiddenException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
 import ru.practicum.mainservice.participants.dao.ParticipationRepository;
 import ru.practicum.mainservice.participants.dto.ParticipationMapper;
