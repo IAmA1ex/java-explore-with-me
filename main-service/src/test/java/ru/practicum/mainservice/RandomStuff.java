@@ -1,6 +1,7 @@
 package ru.practicum.mainservice;
 
 import ru.practicum.mainservice.categories.dto.CategoryDto;
+import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.user.dto.NewUserRequest;
 import ru.practicum.mainservice.user.model.User;
 
@@ -23,6 +24,13 @@ public class RandomStuff {
 
     public static CategoryDto getCategoryDto(Long categoryId) {
         return CategoryDto.builder()
+                .id(categoryId)
+                .name("name" + categoryId)
+                .build();
+    }
+
+    public static Category getCategory(Long categoryId) {
+        return Category.builder()
                 .id(categoryId)
                 .name("name" + categoryId)
                 .build();

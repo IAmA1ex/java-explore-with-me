@@ -27,9 +27,9 @@ public class PublicCategoriesService {
     }
 
     public CategoryDto getCategory(Long catId) {
-        Category category = categoryRepository.findById(catId).orElse(null);
-        if (category == null) throw new NotFoundException("There is no such user.",
-                    "Category with id = " + catId + " does not exist.");
+        Category category = categoryRepository.findById(catId).orElseThrow(() ->
+                new NotFoundException("There is no such category.",
+                    "Category with id = " + catId + " does not exist."));
         return categoryMapper.toCategoryDto(category);
     }
 }

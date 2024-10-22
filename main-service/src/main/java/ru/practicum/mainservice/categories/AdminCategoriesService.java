@@ -33,7 +33,7 @@ public class AdminCategoriesService {
     public void deleteCategory(Long catId) {
 
         if (!categoryRepository.existsById(catId))
-            throw new NotFoundException("There is no such user.",
+            throw new NotFoundException("There is no such category.",
                     "Category with id = " + catId + " does not exist.");
 
         if (categoryRepository.containsEvents(catId)) {
@@ -50,14 +50,15 @@ public class AdminCategoriesService {
                     "Category with id = " + catId + " does not exist.");
 
         Category byName = categoryRepository.findByName(categoryDto.getName());
-        if (byName != null && !byName.getId().equals(catId))
+        if (byName != null && !byName.getId().equals(catId))  // есть категория с таким же именем, но другой id
             throw new ConflictException("Such a category already exists.",
                     "Category with name = " + categoryDto.getName() + " already exists.");
 
         Category category = categoryMapper.toCategory(categoryDto);
-        if (byName == null || !byName.getName().equals(category.getName()))
+        if (byName == null || !byName.getName().equals(category.getName())) {  // категория с таким именем не найдена
+            category.setId(catId);
             category = categoryRepository.save(category);
-        else {
+        } else {  // категория с таким именем и id
             category.setId(catId);
         }
         log.debug("MAIN: {} was updated.", category);
