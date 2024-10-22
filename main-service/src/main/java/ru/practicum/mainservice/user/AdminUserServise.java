@@ -24,11 +24,9 @@ public class AdminUserServise {
     public List<UserDto> getUsers(List<Long> ids, Long from, Long size) {
         List<User> users;
         if (ids == null || ids.isEmpty()) {
-            if (from == null || size == null) users = userRepository.findAll();
-            else users = userRepository.getUsersLimit(from, size);
+            users = userRepository.getUsersLimit(from, size);
         } else {
-            if (from == null || size == null) users = userRepository.findAllById(ids);
-            else users = userRepository.getSortedUsers(ids, from, size);
+            users = userRepository.getSortedUsers(ids, from, size);
         }
         List<UserDto> userDtos = users.stream().map(userMapper::toUserDto).toList();
         log.debug("MAIN: {} users were received on request", userDtos.size());
