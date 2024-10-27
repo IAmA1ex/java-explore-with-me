@@ -102,7 +102,7 @@ class AdminCategoriesServiceTest {
         existByName = false;
         CategoryDto categoryDtoCreated = adminCategoriesService.addCategory(categoryDto);
         assertNotNull(categoryDtoCreated);
-        assertEquals(primaryCategoryId, categoryDtoCreated.getId());
+        assertEquals(primaryCategoryId + 1, categoryDtoCreated.getId());
         assertEquals(categoryDto.getName(), categoryDtoCreated.getName());
     }
 

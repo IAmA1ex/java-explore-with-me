@@ -2,6 +2,7 @@ package ru.practicum.mainservice.events.dto;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.practicum.mainservice.events.dao.EventRepository;
@@ -18,8 +19,10 @@ import java.util.List;
 public class AdditionalGeneralFunctionality {
 
     private final EventRepository eventRepository;
-    private StatsClient statsClient;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Setter
+    private StatsClient statsClient;
 
     @Value("${host}")
     private String host;

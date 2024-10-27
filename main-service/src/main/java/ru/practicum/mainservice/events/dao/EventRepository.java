@@ -10,8 +10,6 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    List<Event> findAllByInitiatorId(Long initiatorId);
-
     @Query("""
         SELECT e FROM Event e
         WHERE e.initiator.id = :userId
@@ -40,7 +38,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
         LIMIT :size OFFSET :from
     """)
     List<Event> findAllByAdminFilters(List<Long> users,
-                                      List<String> states,
+                                      List<EventsStates> states,
                                       List<Long> categories,
                                       LocalDateTime rangeStart,
                                       LocalDateTime rangeEnd,

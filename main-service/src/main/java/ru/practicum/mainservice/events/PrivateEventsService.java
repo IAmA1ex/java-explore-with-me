@@ -2,6 +2,7 @@ package ru.practicum.mainservice.events;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -39,13 +40,15 @@ public class PrivateEventsService {
     private final ParticipationRepository participationRepository;
     private final EventMapper eventMapper;
     private final ParticipationMapper participationMapper;
+
+    @Setter
     private StatsClient statsClient;
 
     @Value("${host}")
     private String host;
 
     @PostConstruct
-    public void init() {
+    private void init() {
         statsClient = new StatsClient(host);
     }
 
@@ -55,9 +58,7 @@ public class PrivateEventsService {
             throw new NotFoundException("There is no such user.",
                     "User with id = " + userId + " does not exist.");
 
-        List<Event> events;
-        if (from == null || size == null) events = eventRepository.findAllByInitiatorId(userId);
-        else events = eventRepository.findAllByInitiatorIdSorted(userId, from, size);
+        List<Event> events = eventRepository.findAllByInitiatorIdSorted(userId, from, size);
 
         List<EventShortDto> eventShortDtos = events.stream().map(e -> {
             EventShortDto eventShortDto = eventMapper.toEventShortDto(e);
@@ -74,7 +75,7 @@ public class PrivateEventsService {
 
         if (!newEventDto.getEventDate().isAfter(LocalDateTime.now().plusHours(2)))
             throw new BadRequestException("For the requested operation the conditions are not met.",
-                    String.format("Field: eventDate. Error: Must contain a date that has not yet occurred. Value: %s.",
+                    String.format("Event date must contain a date that has not yet occurred. Value: %s.",
                             newEventDto.getEventDate()));
 
         User initiator = userRepository.findById(userId).orElseThrow(() ->
@@ -109,6 +110,10 @@ public class PrivateEventsService {
         Event event = eventRepository.findById(eventId).orElseThrow(() ->
                 new NotFoundException("There is no such event.",
                         "Event with id = " + eventId + " does not exist."));
+
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new BadRequestException("Access is denied.", "This user does not have access to this event.");
+        }
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));

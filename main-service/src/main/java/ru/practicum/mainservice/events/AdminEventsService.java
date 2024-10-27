@@ -2,6 +2,7 @@ package ru.practicum.mainservice.events;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,13 +33,15 @@ public class AdminEventsService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
+
+    @Setter
     private StatsClient statsClient;
 
     @Value("${host}")
     private String host;
 
     @PostConstruct
-    public void init() {
+    private void init() {
         statsClient = new StatsClient(host);
     }
 
@@ -49,9 +52,8 @@ public class AdminEventsService {
                                         LocalDateTime rangeEnd,
                                         Long from,
                                         Long size) {
-        List<String> statesStr = states == null ? null : states.stream().map(EventsStates::toString).toList();
         List<Event> events = eventRepository.findAllByAdminFilters(users,
-                statesStr,
+                states,
                 categories,
                 rangeStart,
                 rangeEnd,

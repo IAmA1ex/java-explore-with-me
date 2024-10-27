@@ -17,6 +17,7 @@ import ru.practicum.mainservice.exception.errors.NotFoundException;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -61,7 +62,7 @@ public class PublicEventsService {
                     return eventShortDto;
                 })
                 .toList();
-        sortEvents(eventShortDtos, sort);
+        eventShortDtos = sortEvents(eventShortDtos, sort);
 
         log.debug("MAIN: {} events were found.", eventShortDtos.size());
         return eventShortDtos;
@@ -87,9 +88,12 @@ public class PublicEventsService {
         return eventFullDto;
     }
 
-    private void sortEvents(List<EventShortDto> events, String sort) {
+    private List<EventShortDto> sortEvents(List<EventShortDto> events, String sort) {
         if (sort.equals("VIEWS")) {
-            events.sort(Comparator.comparing(EventShortDto::getViews));
+            return events.stream()
+                    .sorted(Comparator.comparing(EventShortDto::getViews))
+                    .collect(Collectors.toList());
         }
+        return events;
     }
 }
