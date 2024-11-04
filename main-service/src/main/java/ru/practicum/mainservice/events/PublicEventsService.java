@@ -37,7 +37,7 @@ public class PublicEventsService {
                                          Boolean onlyAvailable,
                                          String sort,
                                          Long from,
-                                         Long size) {
+                                         Long size, HttpServletRequest request) {
         if (categories != null && categories.stream().anyMatch(categoryId -> categoryId < 1)) {
             throw new BadRequestException("Invalid category ID.",
                     "All category IDs must be greater than or equal to 1.");
@@ -63,6 +63,10 @@ public class PublicEventsService {
                 })
                 .toList();
         eventShortDtos = sortEvents(eventShortDtos, sort);
+
+        String ip = request.getRemoteAddr();
+        String uri = request.getRequestURI();
+        agf.addView("explore-with-me", uri, ip);
 
         log.debug("MAIN: {} events were found.", eventShortDtos.size());
         return eventShortDtos;

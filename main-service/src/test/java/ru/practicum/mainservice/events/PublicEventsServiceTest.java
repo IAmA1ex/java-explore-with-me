@@ -120,9 +120,13 @@ class PublicEventsServiceTest {
 
     @Test
     void getEvents() {
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+        when(httpServletRequest.getRemoteAddr()).thenReturn("11.12.13.14");
+        when(httpServletRequest.getRequestURI()).thenReturn("/test/uri");
+
         BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             publicEventsService.getEvents(null, List.of(-1L), null, null, null,
-                    false, "EVENT_DATE", 0L, 10L);
+                    false, "EVENT_DATE", 0L, 10L, httpServletRequest);
         });
         assertNotNull(badRequestException);
         assertEquals("Invalid category ID.", badRequestException.getMessage());
@@ -131,7 +135,7 @@ class PublicEventsServiceTest {
         categoriesDelta = 2L;
         NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
             publicEventsService.getEvents(null, List.of(1L, 2L, 3L, 4L), null, null, null,
-                    false, "EVENT_DATE", 0L, 10L);
+                    false, "EVENT_DATE", 0L, 10L, httpServletRequest);
         });
         assertNotNull(notFoundException);
         assertEquals("One or more categories not found", notFoundException.getMessage());
@@ -139,7 +143,7 @@ class PublicEventsServiceTest {
 
         categoriesDelta = 0L;
         List<EventShortDto> events = publicEventsService.getEvents(null, List.of(1L), null,
-                null, null, false, "VIEWS", 0L, 10L);
+                null, null, false, "VIEWS", 0L, 10L, httpServletRequest);
         assertNotNull(events);
         assertEquals(5, events.size());
     }

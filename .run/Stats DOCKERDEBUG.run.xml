@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Stats POSTGRES" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ACTIVE_PROFILES" value="postgres" />
+  <configuration default="false" name="Stats DOCKERDEBUG" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="dockerdebug" />
     <option name="ALTERNATIVE_JRE_PATH" value="corretto-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <module name="stats-service" />
