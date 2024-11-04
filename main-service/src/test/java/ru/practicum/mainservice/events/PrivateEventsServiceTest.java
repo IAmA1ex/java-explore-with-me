@@ -305,7 +305,7 @@ class PrivateEventsServiceTest {
         assertEquals("Event state does not allow this action.", conflictException.getMessage());
         assertEquals("The action can only be performed on events in PENDING or CANCELED state.",
                 conflictException.getReason());
-        
+
         eventState = EventsStates.PENDING;
         notFoundException = assertThrows(NotFoundException.class, () ->
                 privateEventsService.updateEvent(1L, 1L, request));

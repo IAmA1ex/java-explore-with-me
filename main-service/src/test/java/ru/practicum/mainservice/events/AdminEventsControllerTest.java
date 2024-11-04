@@ -1,7 +1,10 @@
 package ru.practicum.mainservice.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,12 +12,22 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.mainservice.categories.dto.CategoryMapper;
+import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
+import ru.practicum.mainservice.events.model.Event;
+import ru.practicum.mainservice.user.dto.UserMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.mainservice.RandomStuff.getEvent;
 import static ru.practicum.mainservice.RandomStuff.getUpdateEventAdminRequest;
 
 @SpringBootTest
@@ -28,6 +41,19 @@ class AdminEventsControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private EventMapper eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
+
+    @Mock
+    private AdminEventsService adminEventsService;
+
+    @InjectMocks
+    private AdminEventsController adminEventsController;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(adminEventsController).build();
+    }
 
     @Test
     void getEvents() {
@@ -44,13 +70,20 @@ class AdminEventsControllerTest {
 
     @Test
     void updateEvent() {
-        UpdateEventAdminRequest updateEventAdminRequest = getUpdateEventAdminRequest(1L,
-                1L, 1L);
         try {
+            when(adminEventsService.updateEvent(anyLong(), any())).thenAnswer(arg -> {
+                Long id = arg.getArgument(0);
+                Event event = getEvent(id, 1L, 1L);
+                return eventMapper.toEventFullDto(event);
+            });
+
+            UpdateEventAdminRequest updateEventAdminRequest = getUpdateEventAdminRequest(1L,
+                    1L, 1L);
             mockMvc.perform(patch("/admin/events/{eventId}", 100L)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(updateEventAdminRequest)))
-                    .andExpect(status().is4xxClientError());
+                    .andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100));
         } catch (Exception e) {
             fail(e.getMessage());
         }

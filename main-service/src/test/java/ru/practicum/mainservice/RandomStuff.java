@@ -2,6 +2,9 @@ package ru.practicum.mainservice;
 
 import ru.practicum.mainservice.categories.dto.CategoryDto;
 import ru.practicum.mainservice.categories.model.Category;
+import ru.practicum.mainservice.compilations.dto.NewCompilationDto;
+import ru.practicum.mainservice.compilations.dto.UpdateCompilationRequest;
+import ru.practicum.mainservice.compilations.model.Compilation;
 import ru.practicum.mainservice.events.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.mainservice.events.dto.NewEventDto;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
@@ -147,6 +150,30 @@ public class RandomStuff {
         return EventRequestStatusUpdateRequest.builder()
                 .requestIds(requesterIds)
                 .status(status)
+                .build();
+    }
+
+    public static NewCompilationDto getNewCompilationDto() {
+        return NewCompilationDto.builder()
+                .events(List.of(1L))
+                .pinned(false)
+                .title("title title title title")
+                .build();
+    }
+
+    public static UpdateCompilationRequest getUpdateCompilationRequest() {
+        return UpdateCompilationRequest.builder()
+                .events(List.of(1L))
+                .pinned(false)
+                .title("update title update title update title")
+                .build();
+    }
+
+    public static Compilation getCompilation(Long id) {
+        return Compilation.builder()
+                .id(id)
+                .pinned(true)
+                .title("title title title title")
                 .build();
     }
 }
