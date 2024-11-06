@@ -1,7 +1,8 @@
-package ru.practicum.mainservice.compilations;
+package ru.practicum.mainservice.compilations.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.compilations.service.PublicCompilationService;
 import ru.practicum.mainservice.compilations.dto.CompilationDto;
 
 import java.util.List;

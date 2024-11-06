@@ -1,9 +1,10 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.events.service.AdminEventsService;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
 import ru.practicum.mainservice.events.model.EventsStates;

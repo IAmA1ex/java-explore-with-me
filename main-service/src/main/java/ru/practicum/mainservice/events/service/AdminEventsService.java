@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

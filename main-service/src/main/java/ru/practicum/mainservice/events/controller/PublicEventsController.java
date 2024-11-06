@@ -1,9 +1,10 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.events.service.PublicEventsService;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventShortDto;
 

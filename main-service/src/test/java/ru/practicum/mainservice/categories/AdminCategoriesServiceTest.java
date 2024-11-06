@@ -11,6 +11,7 @@ import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryDto;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.categories.model.Category;
+import ru.practicum.mainservice.categories.service.AdminCategoriesService;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
 

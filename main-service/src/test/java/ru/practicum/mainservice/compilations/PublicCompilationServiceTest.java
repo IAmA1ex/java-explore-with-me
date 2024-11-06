@@ -11,6 +11,7 @@ import ru.practicum.mainservice.compilations.dao.CompilationRepository;
 import ru.practicum.mainservice.compilations.dto.CompilationDto;
 import ru.practicum.mainservice.compilations.dto.CompilationMapper;
 import ru.practicum.mainservice.compilations.model.Compilation;
+import ru.practicum.mainservice.compilations.service.PublicCompilationService;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.exception.errors.NotFoundException;

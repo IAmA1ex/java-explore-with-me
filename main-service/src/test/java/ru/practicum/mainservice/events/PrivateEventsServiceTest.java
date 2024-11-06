@@ -14,6 +14,7 @@ import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.events.model.EventRequestStatus;
 import ru.practicum.mainservice.events.model.EventsStates;
 import ru.practicum.mainservice.events.model.EventsStatesAction;
+import ru.practicum.mainservice.events.service.PrivateEventsService;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;

@@ -15,9 +15,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
+import ru.practicum.mainservice.events.controller.AdminEventsController;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
 import ru.practicum.mainservice.events.model.Event;
+import ru.practicum.mainservice.events.service.AdminEventsService;
 import ru.practicum.mainservice.user.dto.UserMapper;
 
 import static org.junit.jupiter.api.Assertions.*;

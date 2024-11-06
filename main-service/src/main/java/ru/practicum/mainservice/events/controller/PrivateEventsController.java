@@ -1,9 +1,10 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.events.service.PrivateEventsService;
 import ru.practicum.mainservice.events.dto.*;
 import ru.practicum.mainservice.participants.dto.ParticipationRequestDto;
 

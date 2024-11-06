@@ -1,9 +1,10 @@
-package ru.practicum.mainservice.categories;
+package ru.practicum.mainservice.categories.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.categories.service.AdminCategoriesService;
 import ru.practicum.mainservice.categories.dto.CategoryDto;
 
 @RestController
