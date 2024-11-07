@@ -2,10 +2,12 @@ package ru.practicum.statsclient;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -17,15 +19,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class StatsClient {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final RestTemplateBuilder builder = new RestTemplateBuilder();
+    private final ObjectMapper objectMapper;
     private final RestTemplate rest;
 
-    public StatsClient(String host) {
-        rest = builder
-                .uriTemplateHandler(new DefaultUriBuilderFactory("http://" + host + ":9090"))
+    public StatsClient(@Value("${host}") String host, ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        this.rest = new RestTemplateBuilder()
+                .uriTemplateHandler(new DefaultUriBuilderFactory(host))
                 .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
                 .build();
     }

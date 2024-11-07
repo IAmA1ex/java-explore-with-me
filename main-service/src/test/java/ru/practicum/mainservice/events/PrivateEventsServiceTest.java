@@ -50,7 +50,7 @@ class PrivateEventsServiceTest {
     private ParticipationRepository participationRepository;
     private EventMapper eventMapper;
     private ParticipationMapper participationMapper;
-    private StatsClient statsClient;
+    private AdditionalGeneralFunctionality agf;
 
     private Map<String, Long> hits;
     private boolean userExistsById;
@@ -70,10 +70,10 @@ class PrivateEventsServiceTest {
         participationRepository = mock(ParticipationRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
         participationMapper = new ParticipationMapper();
-        statsClient = mock(StatsClient.class);
+        StatsClient statsClient = mock(StatsClient.class);
+        agf = new AdditionalGeneralFunctionality(eventRepository, statsClient);
         privateEventsService = new PrivateEventsService(eventRepository, userRepository, categoryRepository,
-                participationRepository, eventMapper, participationMapper);
-        privateEventsService.setStatsClient(statsClient);
+                participationRepository, eventMapper, participationMapper, agf);
 
         hits = new HashMap<>();
         userExistsById = false;

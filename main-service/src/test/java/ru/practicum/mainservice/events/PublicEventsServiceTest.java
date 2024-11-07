@@ -58,8 +58,7 @@ class PublicEventsServiceTest {
         categoryRepository = mock(CategoryRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
         statsClient = mock(StatsClient.class);
-        agf = new AdditionalGeneralFunctionality(eventRepository);
-        agf.setStatsClient(statsClient);
+        agf = new AdditionalGeneralFunctionality(eventRepository, statsClient);
         publicEventsService = new PublicEventsService(eventRepository, categoryRepository, eventMapper, agf);
 
         hits = new HashMap<>();

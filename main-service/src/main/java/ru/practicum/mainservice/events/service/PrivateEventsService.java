@@ -1,10 +1,7 @@
 package ru.practicum.mainservice.events.service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.model.Category;
@@ -23,8 +20,6 @@ import ru.practicum.mainservice.participants.dto.ParticipationRequestDto;
 import ru.practicum.mainservice.participants.model.Participant;
 import ru.practicum.mainservice.user.dao.UserRepository;
 import ru.practicum.mainservice.user.model.User;
-import ru.practicum.statsclient.StatsClient;
-import ru.practicum.statsdto.StatDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,17 +35,7 @@ public class PrivateEventsService {
     private final ParticipationRepository participationRepository;
     private final EventMapper eventMapper;
     private final ParticipationMapper participationMapper;
-
-    @Setter
-    private StatsClient statsClient;
-
-    @Value("${host}")
-    private String host;
-
-    @PostConstruct
-    private void init() {
-        statsClient = new StatsClient(host);
-    }
+    private final AdditionalGeneralFunctionality agf;
 
     public List<EventShortDto> getEventsCreatedByUser(Long userId, Long from, Long size) {
 
@@ -63,7 +48,8 @@ public class PrivateEventsService {
         List<EventShortDto> eventShortDtos = events.stream().map(e -> {
             EventShortDto eventShortDto = eventMapper.toEventShortDto(e);
             eventShortDto.setConfirmedRequests(getConfirmedRequests(e.getId()));
-            eventShortDto.setViews(getViews(e.getCreatedOn(), e.getId()));
+            eventShortDto.setViews(agf.getViews(e.getCreatedOn(),
+                    String.format("/events/%d", e.getId()), false));
             return eventShortDto;
         }).toList();
 
@@ -95,7 +81,8 @@ public class PrivateEventsService {
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
+                String.format("/events/%d", eventFullDto.getId()), false));
 
         log.debug("MAIN: {} was created.", event);
         return eventFullDto;
@@ -117,7 +104,8 @@ public class PrivateEventsService {
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
+                String.format("/events/%d", eventFullDto.getId()), false));
 
         log.debug("MAIN: {} was found.", event);
         return eventFullDto;
@@ -173,7 +161,8 @@ public class PrivateEventsService {
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
+                String.format("/events/%d", eventFullDto.getId()), false));
 
         log.debug("MAIN: {} was updated.", event);
         return eventFullDto;
@@ -257,11 +246,5 @@ public class PrivateEventsService {
 
     private Long getConfirmedRequests(Long eventId) {
         return eventRepository.countOfParticipants(eventId);
-    }
-
-    private Long getViews(LocalDateTime createdOn, Long eventId) {
-        List<StatDto> statDtos = statsClient.getStats(createdOn, LocalDateTime.now(),
-                List.of(String.format("/events/%d", eventId)), false);
-        return statDtos.isEmpty() ? 0L : statDtos.getFirst().getHits();
     }
 }

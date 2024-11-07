@@ -1,9 +1,6 @@
 package ru.practicum.mainservice.events.dto;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.statsclient.StatsClient;
@@ -19,18 +16,8 @@ import java.util.List;
 public class AdditionalGeneralFunctionality {
 
     private final EventRepository eventRepository;
+    private final StatsClient statsClient;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    @Setter
-    private StatsClient statsClient;
-
-    @Value("${host}")
-    private String host;
-
-    @PostConstruct
-    public void init() {
-        statsClient = new StatsClient(host);
-    }
 
     public String dateToString(LocalDateTime localDateTime) {
         return dateTimeFormatter.format(localDateTime);
@@ -45,6 +32,13 @@ public class AdditionalGeneralFunctionality {
                 List.of(uri), unique);
         return statDtos.isEmpty() ? 0L : statDtos.getFirst().getHits();
     }
+
+    /*public List<StatDto> getStats(LocalDateTime start, LocalDateTime end,
+                List<String> uris, boolean unique) {
+        List<StatDto> statDtos = statsClient.getStats(start, end,
+                uris, false);
+        return statDtos;
+    }*/
 
     public boolean addView(String app, String uri, String ip) {
         NoteDto noteDto = new NoteDto(app, uri, ip, LocalDateTime.now());

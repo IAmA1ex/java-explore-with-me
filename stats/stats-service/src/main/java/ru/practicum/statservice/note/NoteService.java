@@ -39,7 +39,7 @@ public class NoteService {
     public void hit(final NoteDto noteDto) {
         Note note = noteMapper.toNote(noteDto);
         Note saved = noteRepository.save(note);
-        log.trace("HIT: {}", saved);
+        log.info("HIT: {}", saved);
     }
 
     /**
@@ -63,6 +63,7 @@ public class NoteService {
                 .map(statMapper::toStatDto).toList();
         else stats = noteRepository.findByParamsUniqueIsFalse(start, end, uris).stream()
                 .map(statMapper::toStatDto).toList();
+        log.info("GET: {}", stats);
         return stats;
     }
 }

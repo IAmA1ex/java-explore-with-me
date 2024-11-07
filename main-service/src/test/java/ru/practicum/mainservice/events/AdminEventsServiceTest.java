@@ -10,6 +10,7 @@ import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.events.dao.EventRepository;
+import ru.practicum.mainservice.events.dto.AdditionalGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
@@ -44,6 +45,7 @@ class AdminEventsServiceTest {
     private EventRepository eventRepository;
     private CategoryRepository categoryRepository;
     private EventMapper eventMapper;
+    private AdditionalGeneralFunctionality agf;
     private StatsClient statsClient;
 
     private Map<String, Long> hits;
@@ -58,9 +60,9 @@ class AdminEventsServiceTest {
         eventRepository = mock(EventRepository.class);
         categoryRepository = mock(CategoryRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
-        statsClient = mock(StatsClient.class);
-        adminEventsService = new AdminEventsService(eventRepository, categoryRepository, eventMapper);
-        adminEventsService.setStatsClient(statsClient);
+        StatsClient statsClient = mock(StatsClient.class);
+        agf = new AdditionalGeneralFunctionality(eventRepository, statsClient);
+        adminEventsService = new AdminEventsService(eventRepository, categoryRepository, eventMapper, agf);
 
         hits = new HashMap<>();
         eventsToReturn = new ArrayList<>();

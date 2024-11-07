@@ -1,14 +1,12 @@
 package ru.practicum.mainservice.events.service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.events.dao.EventRepository;
+import ru.practicum.mainservice.events.dto.AdditionalGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
@@ -18,8 +16,6 @@ import ru.practicum.mainservice.events.model.EventsStatesAction;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
-import ru.practicum.statsclient.StatsClient;
-import ru.practicum.statsdto.StatDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,17 +29,7 @@ public class AdminEventsService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
-
-    @Setter
-    private StatsClient statsClient;
-
-    @Value("${host}")
-    private String host;
-
-    @PostConstruct
-    private void init() {
-        statsClient = new StatsClient(host);
-    }
+    private final AdditionalGeneralFunctionality agf;
 
     public List<EventFullDto> getEvents(List<Long> users,
                                         List<EventsStates> states,
@@ -62,7 +48,7 @@ public class AdminEventsService {
         List<EventFullDto> eventFullDtos = events.stream().map(e -> {
             EventFullDto eventFullDto = eventMapper.toEventFullDto(e);
             eventFullDto.setConfirmedRequests(getConfirmedRequests(e.getId()));
-            eventFullDto.setViews(getViews(e.getCreatedOn(), e.getId()));
+            eventFullDto.setViews(agf.getViews(e.getCreatedOn(), String.format("/events/%d", e.getId()), false));
             return eventFullDto;
         }).toList();
         log.debug("MAIN: {} were found.", events.size());
@@ -128,7 +114,8 @@ public class AdminEventsService {
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
         eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
-        eventFullDto.setViews(getViews(eventFullDto.getCreatedOn(), eventFullDto.getId()));
+        eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
+                String.format("/events/%d", eventFullDto.getId()), false));
 
         log.debug("MAIN: {} was updated.", event);
         return eventFullDto;
@@ -136,11 +123,5 @@ public class AdminEventsService {
 
     private Long getConfirmedRequests(Long eventId) {
         return eventRepository.countOfParticipants(eventId);
-    }
-
-    private Long getViews(LocalDateTime createdOn, Long eventId) {
-        List<StatDto> statDtos = statsClient.getStats(createdOn, LocalDateTime.now(),
-                List.of(String.format("/events/%d", eventId)), false);
-        return statDtos.isEmpty() ? 0L : statDtos.getFirst().getHits();
     }
 }
