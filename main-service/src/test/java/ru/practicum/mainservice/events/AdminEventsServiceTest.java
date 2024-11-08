@@ -10,7 +10,7 @@ import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.events.dao.EventRepository;
-import ru.practicum.mainservice.events.dto.AdditionalGeneralFunctionality;
+import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
@@ -18,6 +18,7 @@ import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.events.model.EventsStates;
 import ru.practicum.mainservice.events.model.EventsStatesAction;
 import ru.practicum.mainservice.events.service.AdminEventsService;
+import ru.practicum.mainservice.events.service.ServiceGeneralFunctionality;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
@@ -45,8 +46,8 @@ class AdminEventsServiceTest {
     private EventRepository eventRepository;
     private CategoryRepository categoryRepository;
     private EventMapper eventMapper;
-    private AdditionalGeneralFunctionality agf;
-    private StatsClient statsClient;
+    private ServiceGeneralFunctionality sgf;
+    private StatsGeneralFunctionality agf;
 
     private Map<String, Long> hits;
     private List<Event> eventsToReturn;
@@ -61,8 +62,9 @@ class AdminEventsServiceTest {
         categoryRepository = mock(CategoryRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
         StatsClient statsClient = mock(StatsClient.class);
-        agf = new AdditionalGeneralFunctionality(eventRepository, statsClient);
-        adminEventsService = new AdminEventsService(eventRepository, categoryRepository, eventMapper, agf);
+        sgf = new ServiceGeneralFunctionality(categoryRepository);
+        agf = new StatsGeneralFunctionality(eventRepository, statsClient);
+        adminEventsService = new AdminEventsService(eventRepository, eventMapper, sgf, agf);
 
         hits = new HashMap<>();
         eventsToReturn = new ArrayList<>();

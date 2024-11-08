@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class AdditionalGeneralFunctionality {
+public class StatsGeneralFunctionality {
 
     private final EventRepository eventRepository;
     private final StatsClient statsClient;

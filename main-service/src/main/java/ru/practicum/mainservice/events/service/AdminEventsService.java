@@ -3,10 +3,8 @@ package ru.practicum.mainservice.events.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.mainservice.categories.dao.CategoryRepository;
-import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.events.dao.EventRepository;
-import ru.practicum.mainservice.events.dto.AdditionalGeneralFunctionality;
+import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
@@ -22,14 +20,13 @@ import java.util.List;
 
 @Slf4j
 @Service
-
 @RequiredArgsConstructor
 public class AdminEventsService {
 
     private final EventRepository eventRepository;
-    private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
-    private final AdditionalGeneralFunctionality agf;
+    private final ServiceGeneralFunctionality sgf;
+    private final StatsGeneralFunctionality agf;
 
     public List<EventFullDto> getEvents(List<Long> users,
                                         List<EventsStates> states,
@@ -66,24 +63,8 @@ public class AdminEventsService {
             throw new BadRequestException("Event date is too soon.",
                     "The event date must be at least 2 hours in the future.");
 
-        if (eventUpdate.getAnnotation() != null) event.setAnnotation(eventUpdate.getAnnotation());
-        if (eventUpdate.getCategory() != null) {
-            Category category = categoryRepository.findById(eventUpdate.getCategory()).orElseThrow(() ->
-                    new NotFoundException("There is no such category.",
-                            "Category with id = " + eventUpdate.getCategory() + " does not exist."));
-            event.setCategory(category);
-        }
-        if (eventUpdate.getDescription() != null) event.setDescription(eventUpdate.getDescription());
-        if (eventUpdate.getLocation() != null) {
-            event.setLat(eventUpdate.getLocation().getLat());
-            event.setLon(eventUpdate.getLocation().getLon());
-        }
-        if (eventUpdate.getPaid() != null) event.setPaid(eventUpdate.getPaid());
-        if (eventUpdate.getParticipantLimit() != null) event.setParticipantLimit(eventUpdate.getParticipantLimit());
-        if (eventUpdate.getRequestModeration() != null) event.setRequestModeration(eventUpdate.getRequestModeration());
-        if (eventUpdate.getTitle() != null) event.setTitle(eventUpdate.getTitle());
+        sgf.updateEvent(event, eventUpdate);
         if (eventUpdate.getEventDate() != null) event.setEventDate(eventUpdate.getEventDate());
-
         if (eventUpdate.getStateAction() != null) {
 
             if (eventUpdate.getStateAction().equals(EventsStatesAction.PUBLISH_EVENT)) {

@@ -35,7 +35,8 @@ public class PrivateEventsService {
     private final ParticipationRepository participationRepository;
     private final EventMapper eventMapper;
     private final ParticipationMapper participationMapper;
-    private final AdditionalGeneralFunctionality agf;
+    private final ServiceGeneralFunctionality sgf;
+    private final StatsGeneralFunctionality agf;
 
     public List<EventShortDto> getEventsCreatedByUser(Long userId, Long from, Long size) {
 
@@ -129,34 +130,20 @@ public class PrivateEventsService {
             throw new ConflictException("Event state does not allow this action.",
                     "The action can only be performed on events in PENDING or CANCELED state.");
 
-        if (eventUpdate.getAnnotation() != null) event.setAnnotation(eventUpdate.getAnnotation());
-        if (eventUpdate.getCategory() != null) {
-            Category category = categoryRepository.findById(eventUpdate.getCategory()).orElseThrow(() ->
-                    new NotFoundException("There is no such category.",
-                            "Category with id = " + eventUpdate.getCategory() + " does not exist."));
-            event.setCategory(category);
-        }
-        if (eventUpdate.getDescription() != null) event.setDescription(eventUpdate.getDescription());
         if (eventUpdate.getEventDate() != null) {
             if (!eventUpdate.getEventDate().isAfter(LocalDateTime.now().plusHours(2)))
                 throw new BadRequestException("Event date is too soon.",
                         "The event date must be at least 2 hours in the future.");
             event.setEventDate(eventUpdate.getEventDate());
         }
-        if (eventUpdate.getLocation() != null) {
-            event.setLat(eventUpdate.getLocation().getLat());
-            event.setLon(eventUpdate.getLocation().getLon());
-        }
-        if (eventUpdate.getPaid() != null) event.setPaid(eventUpdate.getPaid());
-        if (eventUpdate.getParticipantLimit() != null) event.setParticipantLimit(eventUpdate.getParticipantLimit());
-        if (eventUpdate.getRequestModeration() != null) event.setRequestModeration(eventUpdate.getRequestModeration());
+
+        sgf.updateEvent(event, eventUpdate);
         if (eventUpdate.getStateAction() != null) {
             if (eventUpdate.getStateAction().equals(EventsStatesAction.SEND_TO_REVIEW))
                 event.setState(EventsStates.PENDING);
             if (eventUpdate.getStateAction().equals(EventsStatesAction.CANCEL_REVIEW))
                 event.setState(EventsStates.CANCELED);
         }
-        if (eventUpdate.getTitle() != null) event.setTitle(eventUpdate.getTitle());
 
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);

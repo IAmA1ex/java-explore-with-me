@@ -15,6 +15,7 @@ import ru.practicum.mainservice.events.model.EventRequestStatus;
 import ru.practicum.mainservice.events.model.EventsStates;
 import ru.practicum.mainservice.events.model.EventsStatesAction;
 import ru.practicum.mainservice.events.service.PrivateEventsService;
+import ru.practicum.mainservice.events.service.ServiceGeneralFunctionality;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
@@ -50,7 +51,8 @@ class PrivateEventsServiceTest {
     private ParticipationRepository participationRepository;
     private EventMapper eventMapper;
     private ParticipationMapper participationMapper;
-    private AdditionalGeneralFunctionality agf;
+    private ServiceGeneralFunctionality sgf;
+    private StatsGeneralFunctionality agf;
 
     private Map<String, Long> hits;
     private boolean userExistsById;
@@ -71,9 +73,10 @@ class PrivateEventsServiceTest {
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
         participationMapper = new ParticipationMapper();
         StatsClient statsClient = mock(StatsClient.class);
-        agf = new AdditionalGeneralFunctionality(eventRepository, statsClient);
+        sgf = new ServiceGeneralFunctionality(categoryRepository);
+        agf = new StatsGeneralFunctionality(eventRepository, statsClient);
         privateEventsService = new PrivateEventsService(eventRepository, userRepository, categoryRepository,
-                participationRepository, eventMapper, participationMapper, agf);
+                participationRepository, eventMapper, participationMapper, sgf, agf);
 
         hits = new HashMap<>();
         userExistsById = false;

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.events.dao.EventRepository;
-import ru.practicum.mainservice.events.dto.AdditionalGeneralFunctionality;
+import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.EventShortDto;
@@ -27,7 +27,7 @@ public class PublicEventsService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
-    private final AdditionalGeneralFunctionality agf;
+    private final StatsGeneralFunctionality agf;
 
     public List<EventShortDto> getEvents(String text,
                                          List<Long> categories,

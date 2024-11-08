@@ -11,7 +11,7 @@ import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.events.dao.EventRepository;
-import ru.practicum.mainservice.events.dto.AdditionalGeneralFunctionality;
+import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.EventShortDto;
@@ -45,7 +45,7 @@ class PublicEventsServiceTest {
     private CategoryRepository categoryRepository;
     private EventMapper eventMapper;
     private StatsClient statsClient;
-    private AdditionalGeneralFunctionality agf;
+    private StatsGeneralFunctionality agf;
 
     private Map<String, Long> hits;
     private Long categoriesDelta;
@@ -58,7 +58,7 @@ class PublicEventsServiceTest {
         categoryRepository = mock(CategoryRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
         statsClient = mock(StatsClient.class);
-        agf = new AdditionalGeneralFunctionality(eventRepository, statsClient);
+        agf = new StatsGeneralFunctionality(eventRepository, statsClient);
         publicEventsService = new PublicEventsService(eventRepository, categoryRepository, eventMapper, agf);
 
         hits = new HashMap<>();
