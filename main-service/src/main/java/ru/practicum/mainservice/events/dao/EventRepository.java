@@ -47,16 +47,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("""
         SELECT e FROM Event e
+        LEFT JOIN Participant AS p ON p.event.id = e.id
         WHERE ((:text IS NULL OR LOWER(e.annotation) LIKE LOWER(CONCAT('%', CAST(:text AS STRING), '%'))) OR
             (:text IS NULL OR LOWER(e.description) LIKE LOWER(CONCAT('%', CAST(:text AS STRING), '%')))) AND
             (:categories IS NULL OR e.category.id IN :categories) AND
             (:paid IS NULL OR e.paid IN :paid) AND
             (CAST(:rangeStart AS TIMESTAMP) IS NULL OR e.eventDate >= :rangeStart) AND
             (CAST(:rangeEnd AS TIMESTAMP) IS NULL OR e.eventDate <= :rangeEnd) AND
-            (:onlyAvailable = false OR (
-                SELECT COUNT(p) FROM Participant p
-                WHERE p.event.id = e.id
-            ) < e.participantLimit) AND
+            (:onlyAvailable = false OR COUNT(p.id) < e.participantLimit) AND
             (e.state = 2)
         ORDER BY e.eventDate DESC
         LIMIT :size OFFSET :from
