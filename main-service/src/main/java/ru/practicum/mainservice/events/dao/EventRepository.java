@@ -71,17 +71,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     boolean existsByIdAndState(Long eventId, EventsStates state);
 
     @Query("""
-        SELECT EXISTS(
-            SELECT 1 FROM Event e
-            WHERE e.id = :eventId AND ((
-                SELECT COUNT(p) FROM Participant p
-                WHERE p.event.id = e.id
-            ) < e.participantLimit OR e.participantLimit = 0)
-        )
-    """)
-    boolean isRequestLimitNotReached(Long eventId);
-
-    @Query("""
         SELECT e FROM Event e
         WHERE e.id IN :events
     """)
