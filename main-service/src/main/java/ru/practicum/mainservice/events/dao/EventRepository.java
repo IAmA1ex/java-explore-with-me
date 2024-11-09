@@ -54,8 +54,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             (:paid IS NULL OR e.paid IN :paid) AND
             (CAST(:rangeStart AS TIMESTAMP) IS NULL OR e.eventDate >= :rangeStart) AND
             (CAST(:rangeEnd AS TIMESTAMP) IS NULL OR e.eventDate <= :rangeEnd) AND
-            (:onlyAvailable = false OR COUNT(p.id) < e.participantLimit) AND
             (e.state = 2)
+        GROUP BY e.id
+        HAVING :onlyAvailable = false OR COUNT(p.id) < e.participantLimit
         ORDER BY e.eventDate DESC
         LIMIT :size OFFSET :from
     """)
