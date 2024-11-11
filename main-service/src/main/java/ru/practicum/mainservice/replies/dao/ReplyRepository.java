@@ -1,0 +1,7 @@
+package ru.practicum.mainservice.replies.dao;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.practicum.mainservice.replies.model.Reply;
+
+public interface ReplyRepository extends JpaRepository<Reply, Long> {
+}
