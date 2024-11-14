@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.comments.dto.CommentDto;
 import ru.practicum.mainservice.events.service.PublicEventsService;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventShortDto;
@@ -41,5 +42,16 @@ public class PublicEventsController {
     public EventFullDto getEvent(@PathVariable final Long id,
                                  HttpServletRequest request) {
         return publicEventsService.getEvent(id, request);
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public List<CommentDto> getCommentsForEvent(@PathVariable final Long eventId) {
+        return publicEventsService.getCommentsForEvent(eventId);
+    }
+
+    @GetMapping("/{eventId}/comments/{commentId}/replies")
+    public List<CommentDto> getCommentsForEvent(@PathVariable final Long eventId,
+                                                @PathVariable final Long commentId) {
+        return publicEventsService.getRepliesForComment(eventId, commentId);
     }
 }

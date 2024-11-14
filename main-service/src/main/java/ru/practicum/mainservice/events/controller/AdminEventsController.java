@@ -3,6 +3,7 @@ package ru.practicum.mainservice.events.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainservice.events.service.AdminEventsService;
 import ru.practicum.mainservice.events.dto.EventFullDto;
@@ -37,5 +38,12 @@ public class AdminEventsController {
     public EventFullDto updateEvent(@PathVariable final Long eventId,
                                     @RequestBody @Valid final UpdateEventAdminRequest updateEventAdminRequest) {
         return adminEventsService.updateEvent(eventId, updateEventAdminRequest);
+    }
+
+    @DeleteMapping("/{eventId}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable("eventId") Long eventId,
+                              @PathVariable("commentId") Long commentId) {
+        return adminEventsService.deleteComment(eventId, commentId);
     }
 }

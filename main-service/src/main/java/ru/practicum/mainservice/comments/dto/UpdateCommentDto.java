@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewCommentDto {
+public class UpdateCommentDto {
 
     @NotBlank(message = "Comment message cannot be blank.")
     private String text;

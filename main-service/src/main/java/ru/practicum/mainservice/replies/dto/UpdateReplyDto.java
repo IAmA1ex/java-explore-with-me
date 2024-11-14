@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.comments.dto;
+package ru.practicum.mainservice.replies.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NewCommentDto {
+public class UpdateReplyDto {
 
-    @NotBlank(message = "Comment message cannot be blank.")
+    @NotBlank(message = "Reply message cannot be blank.")
     private String text;
 }
