@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,10 +13,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
-import ru.practicum.mainservice.events.controller.PublicEventsController;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.service.PublicEventsService;
 import ru.practicum.mainservice.user.dto.UserMapper;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.practicum.mainservice.RandomStuff.getEvent;
+import static ru.practicum.mainservice.RandomStuff.*;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -71,6 +72,52 @@ class PublicEventsControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.id")
                             .value(100));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void getCommentsForEvent() {
+        try {
+            when(publicEventsService.getCommentsForEvent(anyLong())).thenAnswer(arg ->
+                    List.of(getShortCommentDto(1L), getShortCommentDto(2L), getShortCommentDto(3L)));
+
+            mockMvc.perform(get("/events/{eventId}/comments", 100))
+                    .andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.size()")
+                            .value(3));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void getComment() {
+        try {
+            when(publicEventsService.getComment(anyLong(), anyLong())).thenAnswer(arg ->
+                    getFullCommentDto(1L));
+
+            mockMvc.perform(get("/events/{eventId}/comments/{commentId}", 100, 100))
+                    .andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id")
+                            .value(1));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void getReply() {
+        try {
+            when(publicEventsService.getReply(anyLong(), anyLong(), anyLong())).thenAnswer(arg ->
+                    getFullReplyDto(1L));
+
+            mockMvc.perform(get("/events/{eventId}/comments/{commentId}/replies/{replyId}",
+                            100, 100, 100))
+                    .andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.id")
+                            .value(1));
         } catch (Exception e) {
             fail(e.getMessage());
         }

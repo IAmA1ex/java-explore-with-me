@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +20,6 @@ import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
 import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.events.model.EventsStates;
 import ru.practicum.mainservice.events.model.EventsStatesAction;
-import ru.practicum.mainservice.events.service.AdminEventsService;
-import ru.practicum.mainservice.events.service.ServiceGeneralFunctionality;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;

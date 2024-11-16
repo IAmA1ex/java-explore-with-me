@@ -2,6 +2,10 @@ package ru.practicum.mainservice;
 
 import ru.practicum.mainservice.categories.dto.CategoryDto;
 import ru.practicum.mainservice.categories.model.Category;
+import ru.practicum.mainservice.comments.dto.FullCommentDto;
+import ru.practicum.mainservice.comments.dto.NewCommentDto;
+import ru.practicum.mainservice.comments.dto.ShortCommentDto;
+import ru.practicum.mainservice.comments.dto.UpdateCommentDto;
 import ru.practicum.mainservice.compilations.dto.NewCompilationDto;
 import ru.practicum.mainservice.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.mainservice.compilations.model.Compilation;
@@ -12,6 +16,9 @@ import ru.practicum.mainservice.events.model.EventsStates;
 import ru.practicum.mainservice.events.model.EventsStatesAction;
 import ru.practicum.mainservice.location.dto.LocationDto;
 import ru.practicum.mainservice.participants.model.Participant;
+import ru.practicum.mainservice.replies.dto.FullReplyDto;
+import ru.practicum.mainservice.replies.dto.NewReplyDto;
+import ru.practicum.mainservice.replies.dto.UpdateReplyDto;
 import ru.practicum.mainservice.user.dto.NewUserRequest;
 import ru.practicum.mainservice.user.model.User;
 
@@ -171,6 +178,62 @@ public class RandomStuff {
                 .id(id)
                 .pinned(true)
                 .title("title title title title")
+                .build();
+    }
+
+    public static FullCommentDto getFullCommentDto(Long id) {
+        return FullCommentDto.builder()
+                .id(id)
+                .createdOn(LocalDateTime.now())
+                .author("author")
+                .text("text text text text text")
+                .likes(List.of())
+                .replies(List.of())
+                .build();
+    }
+
+    public static NewCommentDto getNewCommentDto() {
+        return NewCommentDto.builder()
+                .text("text text text text text")
+                .build();
+    }
+
+    public static UpdateCommentDto getUpdateCommentDto() {
+        return UpdateCommentDto.builder()
+                .text("text text text text text")
+                .build();
+    }
+
+    public static FullReplyDto getFullReplyDto(Long id) {
+        return FullReplyDto.builder()
+                .id(id)
+                .createdOn(LocalDateTime.now())
+                .author("author")
+                .text("text text text text text")
+                .likes(List.of())
+                .build();
+    }
+
+    public static NewReplyDto getNewReplyDto() {
+        return NewReplyDto.builder()
+                .text("text text text text text")
+                .build();
+    }
+
+    public static UpdateReplyDto getUpdateReplyDto() {
+        return UpdateReplyDto.builder()
+                .text("text text text text text")
+                .build();
+    }
+
+    public static ShortCommentDto getShortCommentDto(Long id) {
+        return ShortCommentDto.builder()
+                .id(id)
+                .createdOn(LocalDateTime.now())
+                .author("author")
+                .text("text text text text text")
+                .likes(0L)
+                .replies(0L)
                 .build();
     }
 }

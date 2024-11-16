@@ -35,7 +35,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         WHERE c.event.id = :eventId
         GROUP BY c.id, c.createdOn, c.author.name, c.text
         ORDER BY (COUNT(DISTINCT cl.id) + COUNT(DISTINCT rl.id)) DESC
-        LIMIT :limit OFFSET :from
     """)
-    List<ShortCommentDto> findAllByEventId(Long eventId, Long from, Long size);
+    List<ShortCommentDto> findAllByEventId(Long eventId);
 }

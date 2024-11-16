@@ -47,10 +47,8 @@ public class PublicEventsController {
     }
 
     @GetMapping("/{eventId}/comments")
-    public List<ShortCommentDto> getCommentsForEvent(@PathVariable final Long eventId,
-                                                     @RequestParam(defaultValue = "0") final Long from,
-                                                     @RequestParam(defaultValue = "10") final Long size) {
-        return publicEventsService.getCommentsForEvent(eventId, from, size);
+    public List<ShortCommentDto> getCommentsForEvent(@PathVariable final Long eventId) {
+        return publicEventsService.getCommentsForEvent(eventId);
     }
 
     @GetMapping("/{eventId}/comments/{commentId}")

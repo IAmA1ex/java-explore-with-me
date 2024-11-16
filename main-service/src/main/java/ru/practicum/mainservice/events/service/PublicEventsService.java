@@ -113,8 +113,8 @@ public class PublicEventsService {
         return events;
     }
 
-    public List<ShortCommentDto> getCommentsForEvent(Long eventId, Long from, Long size) {
-        List<ShortCommentDto> shortCommentDtos = commentRepository.findAllByEventId(eventId, from, size);
+    public List<ShortCommentDto> getCommentsForEvent(Long eventId) {
+        List<ShortCommentDto> shortCommentDtos = commentRepository.findAllByEventId(eventId);
         log.debug("MAIN: {} comments were found.", shortCommentDtos.size());
         return shortCommentDtos;
     }

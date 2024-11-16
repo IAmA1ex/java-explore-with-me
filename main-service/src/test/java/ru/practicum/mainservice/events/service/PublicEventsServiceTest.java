@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +21,6 @@ import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.EventShortDto;
 import ru.practicum.mainservice.events.model.Event;
-import ru.practicum.mainservice.events.service.AdminEventsService;
-import ru.practicum.mainservice.events.service.PublicEventsService;
-import ru.practicum.mainservice.events.service.ServiceGeneralFunctionality;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
 import ru.practicum.mainservice.replies.dao.ReplyRepository;

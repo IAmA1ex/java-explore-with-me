@@ -107,7 +107,7 @@ public class PrivateEventsController {
 
     @DeleteMapping("/{eventId}/comments/{commentId}/replies/{replyId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable("userId") Long userId,
+    public void deleteReply(@PathVariable("userId") Long userId,
                               @PathVariable("eventId") Long eventId,
                               @PathVariable("commentId") Long commentId,
                               @PathVariable("replyId") Long replyId) {
