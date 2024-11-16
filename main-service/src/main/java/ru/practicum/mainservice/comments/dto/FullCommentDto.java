@@ -1,11 +1,11 @@
 package ru.practicum.mainservice.comments.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.mainservice.replies.dto.ReplyDto;
+import ru.practicum.mainservice.commentlikes.dto.CommentLikeDto;
+import ru.practicum.mainservice.replies.dto.ShortReplyDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommentDto {
+public class FullCommentDto {
 
     private Long id;
 
@@ -25,5 +24,8 @@ public class CommentDto {
 
     private String text;
 
-    private List<ReplyDto> replies;
+    private List<CommentLikeDto> likes;
+
+    private List<ShortReplyDto> replies;
+
 }

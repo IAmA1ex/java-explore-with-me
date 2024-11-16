@@ -5,6 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
+import ru.practicum.mainservice.comments.dao.CommentRepository;
+import ru.practicum.mainservice.comments.dto.FullCommentDto;
+import ru.practicum.mainservice.comments.dto.CommentMapper;
+import ru.practicum.mainservice.comments.dto.ShortCommentDto;
+import ru.practicum.mainservice.comments.model.Comment;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
@@ -13,6 +18,9 @@ import ru.practicum.mainservice.events.dto.EventShortDto;
 import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
+import ru.practicum.mainservice.replies.dto.FullReplyDto;
+import ru.practicum.mainservice.replies.dto.ReplyMapper;
+import ru.practicum.mainservice.replies.model.Reply;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -26,7 +34,11 @@ public class PublicEventsService {
 
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
+    private final CommentRepository commentRepository;
     private final EventMapper eventMapper;
+    private final CommentMapper commentMapper;
+    private final ReplyMapper replyMapper;
+    private final ServiceGeneralFunctionality sgf;
     private final StatsGeneralFunctionality agf;
 
     public List<EventShortDto> getEvents(String text,
@@ -99,5 +111,28 @@ public class PublicEventsService {
                     .collect(Collectors.toList());
         }
         return events;
+    }
+
+    public List<ShortCommentDto> getCommentsForEvent(Long eventId, Long from, Long size) {
+        List<ShortCommentDto> shortCommentDtos = commentRepository.findAllByEventId(eventId, from, size);
+        log.debug("MAIN: {} comments were found.", shortCommentDtos.size());
+        return shortCommentDtos;
+    }
+
+    public FullCommentDto getComment(Long eventId, Long commentId) {
+        Comment comment = sgf.commentToEventCheck(eventId, commentId);
+        FullCommentDto fullCommentDto = commentMapper.toFullCommentDto(comment);
+        sgf.fillFullCommentDto(fullCommentDto);
+        log.debug("MAIN: {} comment was found.", fullCommentDto);
+        return fullCommentDto;
+    }
+
+    public FullReplyDto getReply(Long eventId, Long commentId, Long replyId) {
+        sgf.commentToEventCheck(eventId, commentId);
+        Reply reply = sgf.replyToCommentCheck(commentId, replyId);
+        FullReplyDto fullReplyDto = replyMapper.toFullReplyDto(reply);
+        sgf.fillFullReplyDto(fullReplyDto);
+        log.debug("MAIN: {} reply was found.", fullReplyDto);
+        return fullReplyDto;
     }
 }

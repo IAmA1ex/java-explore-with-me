@@ -8,6 +8,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
+import ru.practicum.mainservice.commentlikes.dao.CommentLikeRepository;
+import ru.practicum.mainservice.commentlikes.dto.CommentLikesMapper;
+import ru.practicum.mainservice.comments.dao.CommentRepository;
+import ru.practicum.mainservice.comments.dto.CommentMapper;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.*;
 import ru.practicum.mainservice.events.model.Event;
@@ -23,6 +27,10 @@ import ru.practicum.mainservice.participants.dao.ParticipationRepository;
 import ru.practicum.mainservice.participants.dto.ParticipationMapper;
 import ru.practicum.mainservice.participants.dto.ParticipationRequestDto;
 import ru.practicum.mainservice.participants.model.Participant;
+import ru.practicum.mainservice.replies.dao.ReplyRepository;
+import ru.practicum.mainservice.replies.dto.ReplyMapper;
+import ru.practicum.mainservice.replylikes.dao.ReplyLikeRepository;
+import ru.practicum.mainservice.replylikes.dto.ReplyLikeMapper;
 import ru.practicum.mainservice.user.dao.UserRepository;
 import ru.practicum.mainservice.user.dto.UserMapper;
 import ru.practicum.statsclient.StatsClient;
@@ -49,7 +57,15 @@ class PrivateEventsServiceTest {
     private UserRepository userRepository;
     private CategoryRepository categoryRepository;
     private ParticipationRepository participationRepository;
+    private CommentRepository commentRepository;
+    private ReplyRepository replyRepository;
+    private CommentLikeRepository commentLikeRepository;
+    private ReplyLikeRepository replyLikeRepository;
     private EventMapper eventMapper;
+    private CommentLikesMapper commentLikesMapper;
+    private CommentMapper commentMapper;
+    private ReplyMapper replyMapper;
+    private ReplyLikeMapper replyLikeMapper;
     private ParticipationMapper participationMapper;
     private ServiceGeneralFunctionality sgf;
     private StatsGeneralFunctionality agf;
@@ -70,13 +86,24 @@ class PrivateEventsServiceTest {
         userRepository = mock(UserRepository.class);
         categoryRepository = mock(CategoryRepository.class);
         participationRepository = mock(ParticipationRepository.class);
+        commentRepository = mock(CommentRepository.class);
+        replyRepository = mock(ReplyRepository.class);
+        commentLikeRepository  = mock(CommentLikeRepository.class);
+        replyLikeRepository = mock(ReplyLikeRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
+        commentLikesMapper = new CommentLikesMapper();
+        commentMapper = new CommentMapper();
+        replyMapper = new ReplyMapper();
+        replyLikeMapper = new ReplyLikeMapper();
         participationMapper = new ParticipationMapper();
         StatsClient statsClient = mock(StatsClient.class);
-        sgf = new ServiceGeneralFunctionality(categoryRepository);
+        sgf = new ServiceGeneralFunctionality(eventRepository, commentRepository, categoryRepository,
+                commentLikeRepository, replyRepository, replyLikeRepository, commentLikesMapper,
+                replyMapper, replyLikeMapper);
         agf = new StatsGeneralFunctionality(eventRepository, statsClient);
         privateEventsService = new PrivateEventsService(eventRepository, userRepository, categoryRepository,
-                participationRepository, eventMapper, participationMapper, sgf, agf);
+                participationRepository, commentRepository, commentLikeRepository, replyLikeRepository,
+                replyRepository, eventMapper, commentMapper, replyMapper, participationMapper, sgf, agf);
 
         hits = new HashMap<>();
         userExistsById = false;

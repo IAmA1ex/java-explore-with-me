@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.replies.dto;
+package ru.practicum.mainservice.commentlikes.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,13 +11,9 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReplyDto {
+public class CommentLikeDto {
 
-    private Long id;
+    private String user;
 
     private LocalDateTime createdOn;
-
-    private String author;
-
-    private String text;
 }

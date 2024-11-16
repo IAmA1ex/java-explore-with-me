@@ -44,6 +44,14 @@ public class AdminEventsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(@PathVariable("eventId") Long eventId,
                               @PathVariable("commentId") Long commentId) {
-        return adminEventsService.deleteComment(eventId, commentId);
+        adminEventsService.deleteComment(eventId, commentId);
+    }
+
+    @DeleteMapping("/{eventId}/comments/{commentId}/replies/{replyId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteReply(@PathVariable("eventId") Long eventId,
+                              @PathVariable("commentId") Long commentId,
+                              @PathVariable("replyId") Long replyId) {
+        adminEventsService.deleteReply(eventId, commentId, replyId);
     }
 }

@@ -3,6 +3,7 @@ package ru.practicum.mainservice.events;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -10,15 +11,25 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.categories.model.Category;
+import ru.practicum.mainservice.commentlikes.dao.CommentLikeRepository;
+import ru.practicum.mainservice.commentlikes.dto.CommentLikesMapper;
+import ru.practicum.mainservice.comments.dao.CommentRepository;
+import ru.practicum.mainservice.comments.dto.CommentMapper;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.EventShortDto;
 import ru.practicum.mainservice.events.model.Event;
+import ru.practicum.mainservice.events.service.AdminEventsService;
 import ru.practicum.mainservice.events.service.PublicEventsService;
+import ru.practicum.mainservice.events.service.ServiceGeneralFunctionality;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
+import ru.practicum.mainservice.replies.dao.ReplyRepository;
+import ru.practicum.mainservice.replies.dto.ReplyMapper;
+import ru.practicum.mainservice.replylikes.dao.ReplyLikeRepository;
+import ru.practicum.mainservice.replylikes.dto.ReplyLikeMapper;
 import ru.practicum.mainservice.user.dto.UserMapper;
 import ru.practicum.statsclient.StatsClient;
 import ru.practicum.statsdto.NoteDto;
@@ -43,23 +54,45 @@ class PublicEventsServiceTest {
     private PublicEventsService publicEventsService;
     private EventRepository eventRepository;
     private CategoryRepository categoryRepository;
+    private CommentRepository commentRepository;
     private EventMapper eventMapper;
+    private CommentMapper commentMapper;
+    private ReplyMapper replyMapper;
+    private ReplyRepository replyRepository;
+    private CommentLikeRepository commentLikeRepository;
+    private ReplyLikeRepository replyLikeRepository;
+    private CommentLikesMapper commentLikesMapper;
+    private ReplyLikeMapper replyLikeMapper;
     private StatsClient statsClient;
+    private ServiceGeneralFunctionality sgf;
     private StatsGeneralFunctionality agf;
 
     private Map<String, Long> hits;
     private Long categoriesDelta;
     private boolean eventExistById;
     private boolean isPublished;
+    @Autowired
 
     @BeforeEach
-    void setUp() {
+     void setUp() {
         eventRepository = mock(EventRepository.class);
         categoryRepository = mock(CategoryRepository.class);
+        commentRepository = mock(CommentRepository.class);
         eventMapper = new EventMapper(new CategoryMapper(), new UserMapper());
+        commentMapper = new CommentMapper();
+        replyMapper = new ReplyMapper();
+        replyRepository = mock(ReplyRepository.class);
+        commentLikeRepository  = mock(CommentLikeRepository.class);
+        replyLikeRepository = mock(ReplyLikeRepository.class);
+        commentLikesMapper = new CommentLikesMapper();
+        replyLikeMapper = new ReplyLikeMapper();
         statsClient = mock(StatsClient.class);
+        sgf = new ServiceGeneralFunctionality(eventRepository, commentRepository, categoryRepository,
+                commentLikeRepository, replyRepository, replyLikeRepository, commentLikesMapper,
+                replyMapper, replyLikeMapper);
         agf = new StatsGeneralFunctionality(eventRepository, statsClient);
-        publicEventsService = new PublicEventsService(eventRepository, categoryRepository, eventMapper, agf);
+        publicEventsService = new PublicEventsService(eventRepository, categoryRepository, commentRepository,
+                eventMapper, commentMapper, replyMapper, sgf, agf);
 
         hits = new HashMap<>();
         categoriesDelta = 0L;

@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS comments_likes (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     comment_id BIGINT REFERENCES comments (id) ON DELETE CASCADE,
     user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    created_on TIMESTAMP NOT NULL,
     UNIQUE (comment_id, user_id)
 );
 
@@ -98,5 +99,6 @@ CREATE TABLE IF NOT EXISTS replies_likes (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     reply_id BIGINT REFERENCES replies (id) ON DELETE CASCADE,
     user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    created_on TIMESTAMP NOT NULL,
     UNIQUE (reply_id, user_id)
 );

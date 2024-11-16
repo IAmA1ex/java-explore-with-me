@@ -1,9 +1,8 @@
-package ru.practicum.mainservice.replies.model;
+package ru.practicum.mainservice.commentlikes.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.mainservice.comments.model.Comment;
-import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.user.model.User;
 
 import java.time.LocalDateTime;
@@ -14,20 +13,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "replies")
-public class Reply {
+@Table(name = "comments_likes")
+public class CommentLike {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private User author;
-
-    @ManyToOne
     private Comment comment;
 
-    private LocalDateTime createdOn;
+    @ManyToOne
+    private User user;
 
-    private String text;
+    private LocalDateTime createdOn;
 }

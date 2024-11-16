@@ -4,13 +4,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.mainservice.comments.dto.CommentDto;
+import ru.practicum.mainservice.comments.dto.FullCommentDto;
 import ru.practicum.mainservice.comments.dto.NewCommentDto;
 import ru.practicum.mainservice.comments.dto.UpdateCommentDto;
 import ru.practicum.mainservice.events.service.PrivateEventsService;
 import ru.practicum.mainservice.events.dto.*;
 import ru.practicum.mainservice.participants.dto.ParticipationRequestDto;
 import ru.practicum.mainservice.replies.dto.NewReplyDto;
+import ru.practicum.mainservice.replies.dto.FullReplyDto;
 import ru.practicum.mainservice.replies.dto.UpdateReplyDto;
 
 import java.util.List;
@@ -64,17 +65,17 @@ public class PrivateEventsController {
 
     @PostMapping("/{eventId}/comments")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto createComment(@PathVariable("userId") Long userId,
-                                    @PathVariable("eventId") Long eventId,
-                                    @RequestBody @Valid final NewCommentDto newCommentDto) {
+    public FullCommentDto createComment(@PathVariable("userId") Long userId,
+                                        @PathVariable("eventId") Long eventId,
+                                        @RequestBody @Valid final NewCommentDto newCommentDto) {
         return privateEventsService.createComment(userId, eventId, newCommentDto);
     }
 
     @PatchMapping("/{eventId}/comments/{commentId}")
-    public CommentDto updateComment(@PathVariable("userId") Long userId,
-                                    @PathVariable("eventId") Long eventId,
-                                    @PathVariable("commentId") Long commentId,
-                                    @RequestBody @Valid final UpdateCommentDto updateCommentDto) {
+    public FullCommentDto updateComment(@PathVariable("userId") Long userId,
+                                        @PathVariable("eventId") Long eventId,
+                                        @PathVariable("commentId") Long commentId,
+                                        @RequestBody @Valid final UpdateCommentDto updateCommentDto) {
         return privateEventsService.updateComment(userId, eventId, commentId, updateCommentDto);
     }
 
@@ -83,20 +84,20 @@ public class PrivateEventsController {
     public void deleteComment(@PathVariable("userId") Long userId,
                               @PathVariable("eventId") Long eventId,
                               @PathVariable("commentId") Long commentId) {
-        return privateEventsService.deleteComment(userId, eventId, commentId);
+        privateEventsService.deleteComment(userId, eventId, commentId);
     }
 
     @PostMapping("/{eventId}/comments/{commentId}/replies")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto createReply(@PathVariable("userId") Long userId,
-                                  @PathVariable("eventId") Long eventId,
-                                  @PathVariable("commentId") Long commentId,
-                                  @RequestBody @Valid final NewReplyDto newReplyDto) {
+    public FullReplyDto createReply(@PathVariable("userId") Long userId,
+                                    @PathVariable("eventId") Long eventId,
+                                    @PathVariable("commentId") Long commentId,
+                                    @RequestBody @Valid final NewReplyDto newReplyDto) {
         return privateEventsService.createReply(userId, eventId, commentId, newReplyDto);
     }
 
     @PatchMapping("/{eventId}/comments/{commentId}/replies/{replyId}")
-    public CommentDto updateComment(@PathVariable("userId") Long userId,
+    public FullReplyDto updateReply(@PathVariable("userId") Long userId,
                                     @PathVariable("eventId") Long eventId,
                                     @PathVariable("commentId") Long commentId,
                                     @PathVariable("replyId") Long replyId,
@@ -110,28 +111,28 @@ public class PrivateEventsController {
                               @PathVariable("eventId") Long eventId,
                               @PathVariable("commentId") Long commentId,
                               @PathVariable("replyId") Long replyId) {
-        return privateEventsService.deleteReply(userId, eventId, commentId, replyId);
+        privateEventsService.deleteReply(userId, eventId, commentId, replyId);
     }
 
     @PostMapping("/{eventId}/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto setLikeComment(@PathVariable("userId") Long userId,
-                                     @PathVariable("eventId") Long eventId,
-                                     @PathVariable("commentId") Long commentId) {
+    public FullCommentDto setLikeComment(@PathVariable("userId") Long userId,
+                                         @PathVariable("eventId") Long eventId,
+                                         @PathVariable("commentId") Long commentId) {
         return privateEventsService.setLikeComment(userId, eventId, commentId);
     }
 
     @DeleteMapping("/{eventId}/comments/{commentId}/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommentDto removeLikeComment(@PathVariable("userId") Long userId,
-                                     @PathVariable("eventId") Long eventId,
-                                     @PathVariable("commentId") Long commentId) {
+    public FullCommentDto removeLikeComment(@PathVariable("userId") Long userId,
+                                            @PathVariable("eventId") Long eventId,
+                                            @PathVariable("commentId") Long commentId) {
         return privateEventsService.removeLikeComment(userId, eventId, commentId);
     }
 
     @PostMapping("/{eventId}/comments/{commentId}/replies/{replyId}/likes")
     @ResponseStatus(HttpStatus.CREATED)
-    public CommentDto setLikeComment(@PathVariable("userId") Long userId,
+    public FullReplyDto setLikeReply(@PathVariable("userId") Long userId,
                                      @PathVariable("eventId") Long eventId,
                                      @PathVariable("commentId") Long commentId,
                                      @PathVariable("replyId") Long replyId) {
@@ -140,7 +141,7 @@ public class PrivateEventsController {
 
     @DeleteMapping("/{eventId}/comments/{commentId}/replies/{replyId}/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public CommentDto removeLikeComment(@PathVariable("userId") Long userId,
+    public FullReplyDto removeLikeReply(@PathVariable("userId") Long userId,
                                         @PathVariable("eventId") Long eventId,
                                         @PathVariable("commentId") Long commentId,
                                         @PathVariable("replyId") Long replyId) {
