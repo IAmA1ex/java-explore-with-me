@@ -86,7 +86,7 @@ class AdminEventsServiceTest {
         sgf = new ServiceGeneralFunctionality(eventRepository, commentRepository, categoryRepository,
                 commentLikeRepository, replyRepository, replyLikeRepository, commentLikesMapper,
                 replyMapper, replyLikeMapper);
-        agf = new StatsGeneralFunctionality(eventRepository, statsClient);
+        agf = new StatsGeneralFunctionality(statsClient);
         adminEventsService = new AdminEventsService(eventRepository, commentRepository, replyRepository,
                 eventMapper, sgf, agf);
 

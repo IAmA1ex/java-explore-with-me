@@ -70,7 +70,8 @@ public class PrivateEventsService {
 
         List<EventShortDto> eventShortDtos = events.stream().map(e -> {
             EventShortDto eventShortDto = eventMapper.toEventShortDto(e);
-            eventShortDto.setConfirmedRequests(getConfirmedRequests(e.getId()));
+            eventShortDto.setConfirmedRequests(sgf.getConfirmedRequests(e.getId()));
+            eventShortDto.setComments(sgf.getCountOfComments(e.getId()));
             eventShortDto.setViews(agf.getViews(e.getCreatedOn(),
                     String.format("/events/%d", e.getId()), false));
             return eventShortDto;
@@ -103,7 +104,8 @@ public class PrivateEventsService {
         event = eventRepository.save(event);
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setComments(sgf.getCountOfComments(eventFullDto.getId()));
         eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
                 String.format("/events/%d", eventFullDto.getId()), false));
 
@@ -126,7 +128,8 @@ public class PrivateEventsService {
         }
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setComments(sgf.getCountOfComments(eventFullDto.getId()));
         eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
                 String.format("/events/%d", eventFullDto.getId()), false));
 
@@ -169,7 +172,8 @@ public class PrivateEventsService {
 
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setComments(sgf.getCountOfComments(eventFullDto.getId()));
         eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
                 String.format("/events/%d", eventFullDto.getId()), false));
 
@@ -251,10 +255,6 @@ public class PrivateEventsService {
 
         log.debug("MAIN: {} participants were updated.", participants.size());
         return result;
-    }
-
-    private Long getConfirmedRequests(Long eventId) {
-        return eventRepository.countOfParticipants(eventId);
     }
 
     public FullCommentDto createComment(Long userId, Long eventId, NewCommentDto newCommentDto) {

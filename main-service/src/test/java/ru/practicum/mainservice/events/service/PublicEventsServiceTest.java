@@ -93,7 +93,7 @@ class PublicEventsServiceTest {
         sgf = new ServiceGeneralFunctionality(eventRepository, commentRepository, categoryRepository,
                 commentLikeRepository, replyRepository, replyLikeRepository, commentLikesMapper,
                 replyMapper, replyLikeMapper);
-        agf = new StatsGeneralFunctionality(eventRepository, statsClient);
+        agf = new StatsGeneralFunctionality(statsClient);
         publicEventsService = new PublicEventsService(eventRepository, categoryRepository, commentRepository,
                 eventMapper, commentMapper, replyMapper, sgf, agf);
 

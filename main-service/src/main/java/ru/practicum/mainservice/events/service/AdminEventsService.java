@@ -48,7 +48,8 @@ public class AdminEventsService {
                 size);
         List<EventFullDto> eventFullDtos = events.stream().map(e -> {
             EventFullDto eventFullDto = eventMapper.toEventFullDto(e);
-            eventFullDto.setConfirmedRequests(getConfirmedRequests(e.getId()));
+            eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(e.getId()));
+            eventFullDto.setComments(sgf.getCountOfComments(e.getId()));
             eventFullDto.setViews(agf.getViews(e.getCreatedOn(), String.format("/events/%d", e.getId()), false));
             return eventFullDto;
         }).toList();
@@ -98,16 +99,13 @@ public class AdminEventsService {
 
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setComments(sgf.getCountOfComments(eventFullDto.getId()));
         eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
                 String.format("/events/%d", eventFullDto.getId()), false));
 
         log.debug("MAIN: {} was updated.", event);
         return eventFullDto;
-    }
-
-    private Long getConfirmedRequests(Long eventId) {
-        return eventRepository.countOfParticipants(eventId);
     }
 
     public void deleteComment(Long eventId, Long commentId) {

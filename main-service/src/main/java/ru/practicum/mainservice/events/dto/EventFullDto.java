@@ -47,6 +47,8 @@ public class EventFullDto {
 
     private boolean requestModeration;
 
+    private Long comments;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private EventsStates state;
 

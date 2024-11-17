@@ -113,7 +113,7 @@ class PrivateEventsServiceTest {
         sgf = new ServiceGeneralFunctionality(eventRepository, commentRepository, categoryRepository,
                 commentLikeRepository, replyRepository, replyLikeRepository, commentLikesMapper,
                 replyMapper, replyLikeMapper);
-        agf = new StatsGeneralFunctionality(eventRepository, statsClient);
+        agf = new StatsGeneralFunctionality(statsClient);
         privateEventsService = new PrivateEventsService(eventRepository, userRepository, categoryRepository,
                 participationRepository, commentRepository, commentLikeRepository, replyLikeRepository,
                 replyRepository, eventMapper, commentMapper, replyMapper, participationMapper, sgf, agf);

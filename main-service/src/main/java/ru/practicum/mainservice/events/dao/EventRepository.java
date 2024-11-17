@@ -76,4 +76,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
         WHERE e.id IN :events
     """)
     List<Event> getExistingIdsFrom(List<Long> events);
+
+    @Query("""
+        SELECT COUNT(*) FROM Comment c
+        WHERE c.event.id = :eventId
+    """)
+    Long getCountOfComments(Long eventId);
 }

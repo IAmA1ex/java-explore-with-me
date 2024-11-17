@@ -61,6 +61,14 @@ public class ServiceGeneralFunctionality {
         if (eventUpdate.getTitle() != null) event.setTitle(eventUpdate.getTitle());
     }
 
+    public Long getConfirmedRequests(Long eventId) {
+        return eventRepository.countOfParticipants(eventId);
+    }
+
+    public Long getCountOfComments(Long eventId) {
+        return eventRepository.getCountOfComments(eventId);
+    }
+
     public void fillFullCommentDto(FullCommentDto fullCommentDto) {
         List<CommentLike> commentLikes = commentLikeRepository.findAllByCommentId(fullCommentDto.getId());
         List<CommentLikeDto> commentLikeDtos = commentLikes.stream()

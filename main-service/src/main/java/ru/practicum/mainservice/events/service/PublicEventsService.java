@@ -69,7 +69,8 @@ public class PublicEventsService {
         List<EventShortDto> eventShortDtos = events.stream()
                 .map(e -> {
                     EventShortDto eventShortDto = eventMapper.toEventShortDto(e);
-                    eventShortDto.setConfirmedRequests(agf.getConfirmedRequests(e.getId()));
+                    eventShortDto.setConfirmedRequests(sgf.getConfirmedRequests(e.getId()));
+                    eventShortDto.setComments(sgf.getCountOfComments(e.getId()));
                     eventShortDto.setViews(agf.getViews(e.getCreatedOn(), "/events/" + e.getId(), true));
                     return eventShortDto;
                 })
@@ -99,7 +100,8 @@ public class PublicEventsService {
         agf.addView("explore-with-me", uri, ip);
 
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(agf.getConfirmedRequests(event.getId()));
+        eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(event.getId()));
+        eventFullDto.setComments(sgf.getCountOfComments(event.getId()));
         eventFullDto.setViews(agf.getViews(event.getCreatedOn(), "/events/" + event.getId(), true));
         return eventFullDto;
     }
