@@ -24,10 +24,11 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
             r.author.name,
             r.text,
             COUNT(DISTINCT rl.id)
-        ) FROM Reply r
+        )
+        FROM Reply r
         LEFT JOIN ReplyLike rl ON r.id = rl.reply.id
         WHERE r.comment.id = :commentId
-        GROUP BY r.id
+        GROUP BY r.id, r.createdOn, r.author.name, r.text
         ORDER BY COUNT(DISTINCT rl.id) DESC
     """)
     List<ShortReplyDto> findAllByCommentId(Long commentId);

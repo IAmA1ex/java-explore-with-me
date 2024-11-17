@@ -335,6 +335,7 @@ public class PrivateEventsService {
         CommentLike commentLike = CommentLike.builder()
                 .user(user)
                 .comment(comment)
+                .createdOn(LocalDateTime.now())
                 .build();
 
         CommentLike savedCommentLike = commentLikeRepository.save(commentLike);
