@@ -13,8 +13,11 @@ import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.commentlikes.dao.CommentLikeRepository;
 import ru.practicum.mainservice.commentlikes.dto.CommentLikesMapper;
+import ru.practicum.mainservice.commentlikes.model.CommentLike;
 import ru.practicum.mainservice.comments.dao.CommentRepository;
 import ru.practicum.mainservice.comments.dto.CommentMapper;
+import ru.practicum.mainservice.comments.dto.FullCommentDto;
+import ru.practicum.mainservice.comments.dto.ShortCommentDto;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
@@ -24,9 +27,12 @@ import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
 import ru.practicum.mainservice.replies.dao.ReplyRepository;
+import ru.practicum.mainservice.replies.dto.FullReplyDto;
 import ru.practicum.mainservice.replies.dto.ReplyMapper;
+import ru.practicum.mainservice.replies.model.Reply;
 import ru.practicum.mainservice.replylikes.dao.ReplyLikeRepository;
 import ru.practicum.mainservice.replylikes.dto.ReplyLikeMapper;
+import ru.practicum.mainservice.replylikes.model.ReplyLike;
 import ru.practicum.mainservice.user.dto.UserMapper;
 import ru.practicum.statsclient.StatsClient;
 import ru.practicum.statsdto.NoteDto;
@@ -39,8 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static ru.practicum.mainservice.RandomStuff.getCategory;
-import static ru.practicum.mainservice.RandomStuff.getEvent;
+import static ru.practicum.mainservice.RandomStuff.*;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -67,8 +72,9 @@ class PublicEventsServiceTest {
     private Map<String, Long> hits;
     private Long categoriesDelta;
     private boolean eventExistById;
+    private boolean commentExistById;
+    private boolean replyExistById;
     private boolean isPublished;
-    @Autowired
 
     @BeforeEach
      void setUp() {
@@ -94,6 +100,8 @@ class PublicEventsServiceTest {
         hits = new HashMap<>();
         categoriesDelta = 0L;
         eventExistById = false;
+        commentExistById = false;
+        replyExistById = false;
         isPublished = false;
 
         when(statsClient.hit(any(NoteDto.class))).thenAnswer(arg -> {
@@ -145,6 +153,48 @@ class PublicEventsServiceTest {
                 return Optional.of(event);
             }
             return Optional.empty();
+        });
+
+        when(commentRepository.findAllByEventId(anyLong())).thenAnswer(arg ->
+                List.of(getShortCommentDto(1L), getShortCommentDto(2L)));
+
+        when(eventRepository.existsById(anyLong())).thenAnswer(arg -> eventExistById);
+
+        when(commentRepository.findById(anyLong())).thenAnswer(arg -> {
+            Long id = arg.getArgument(0);
+            if (commentExistById) return Optional.of(getComment(id, 1L, 2L, 1L, 1L));
+            else return Optional.empty();
+        });
+
+        when(commentLikeRepository.findAllByCommentId(anyLong())).thenAnswer(arg -> {
+            Long commentId = arg.getArgument(0);
+            return List.of(
+                    new CommentLike(1L, getComment(commentId, 1L, 2L, 1L, 1L), getUser(5L), LocalDateTime.now()),
+                    new CommentLike(2L, getComment(commentId, 1L, 2L, 1L, 1L), getUser(6L), LocalDateTime.now())
+            );
+        });
+
+        when(replyRepository.findAllByCommentId(anyLong())).thenAnswer(arg -> {
+            Long commentId = arg.getArgument(0);
+            return List.of(
+                   getReply(1L, commentId, 1L, 1L, 1L, 1L, 7L),
+                    getReply(1L, commentId, 1L, 1L, 1L, 1L, 8L)
+            );
+        });
+
+        when(commentRepository.existsById(anyLong())).thenAnswer(arg -> commentExistById);
+
+        when(replyRepository.findById(anyLong())).thenAnswer(arg -> {
+            if (replyExistById) return Optional.of(getReply(1L, 1L, 1L, 1L, 1L, 1L, 7L));
+            else return Optional.empty();
+        });
+
+        when(replyLikeRepository.findAllByReplyId(anyLong())).thenAnswer(arg -> {
+            Long replyId = arg.getArgument(0);
+            return List.of(
+                    new ReplyLike(1L, getReply(replyId, 1L, 1L, 1L, 1L, 2L, 3L), getUser(4L), LocalDateTime.now()),
+                    new ReplyLike(1L, getReply(replyId, 1L, 1L, 1L, 1L, 2L, 3L), getUser(5L), LocalDateTime.now())
+            );
         });
     }
 
@@ -201,5 +251,76 @@ class PublicEventsServiceTest {
         EventFullDto eventFullDto = publicEventsService.getEvent(1L, request);
         assertNotNull(eventFullDto);
         assertEquals(1L, eventFullDto.getId());
+    }
+
+    @Test
+    void getCommentsForEvent() {
+        List<ShortCommentDto> shortCommentDtos = publicEventsService.getCommentsForEvent(1L);
+        assertNotNull(shortCommentDtos);
+    }
+
+    @Test
+    void getCommentTest() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                publicEventsService.getComment(1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                publicEventsService.getComment(1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                publicEventsService.getComment(2L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullCommentDto fullCommentDto = publicEventsService.getComment(1L, 1L);
+        assertNotNull(fullCommentDto);
+        assertEquals(1L, fullCommentDto.getId());
+        assertEquals(2, fullCommentDto.getLikes().size());
+        assertEquals(2, fullCommentDto.getReplies().size());
+    }
+
+    @Test
+    void getReplyTest() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                publicEventsService.getReply(1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                publicEventsService.getReply(1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                publicEventsService.getReply(2L, 1L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                publicEventsService.getReply(1L, 1L, 1L));
+        assertEquals("There is no such reply.", notFoundException.getMessage());
+        assertEquals("Reply with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        replyExistById = true;
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                publicEventsService.getReply(1L, 2L, 1L));
+        assertEquals("The comment does not contain such a reply.", badRequestException.getMessage());
+        assertEquals("The comment with id = " + 2L + " does not contain a reply with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullReplyDto fullReplyDto = publicEventsService.getReply(1L, 1L, 1L);
+        assertNotNull(fullReplyDto);
+        assertEquals(1L, fullReplyDto.getId());
+        assertEquals(2, fullReplyDto.getLikes().size());
     }
 }

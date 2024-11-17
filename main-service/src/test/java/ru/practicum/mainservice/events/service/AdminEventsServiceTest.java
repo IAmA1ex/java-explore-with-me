@@ -64,7 +64,9 @@ class AdminEventsServiceTest {
     private Map<String, Long> hits;
     private List<Event> eventsToReturn;
     private Long countOfParticipants;
-    private boolean eventFindById;
+    private boolean eventExistById;
+    private boolean commentExistById;
+    private boolean replyIsBelongsToComment;
     private List<Category> categoriesToReturn;
     private boolean categoryFindById;
 
@@ -92,8 +94,10 @@ class AdminEventsServiceTest {
         eventsToReturn = new ArrayList<>();
         categoriesToReturn = new ArrayList<>();
         countOfParticipants = 0L;
-        eventFindById = false;
+        eventExistById = false;
+        commentExistById = false;
         categoryFindById = false;
+        replyIsBelongsToComment = false;
 
         when(statsClient.hit(any(NoteDto.class))).thenAnswer(arg -> {
             NoteDto noteDto = arg.getArgument(0);
@@ -122,7 +126,7 @@ class AdminEventsServiceTest {
         when(eventRepository.countOfParticipants(anyLong())).thenAnswer(arg -> countOfParticipants);
 
         when(eventRepository.findById(anyLong())).thenAnswer(arg -> {
-            if (eventFindById) {
+            if (eventExistById) {
                 return Optional.of(eventsToReturn.getLast());
             }
             return Optional.empty();
@@ -141,6 +145,16 @@ class AdminEventsServiceTest {
             event.setId(-1L);
             return event;
         });
+
+        when(eventRepository.existsById(anyLong())).thenAnswer(arg -> eventExistById);
+
+        when(commentRepository.findById(anyLong())).thenAnswer(arg -> {
+            Long id = arg.getArgument(0);
+            if (commentExistById) return Optional.of(getComment(1L, 1L, 1L, 1L, 2L));
+            return Optional.empty();
+        });
+
+        when(replyRepository.isBelongsToComment(anyLong(), anyLong())).thenAnswer(arg -> replyIsBelongsToComment);
 
     }
 
@@ -174,7 +188,7 @@ class AdminEventsServiceTest {
         assertNotNull(notFoundException);
         assertEquals("There is no such event.", notFoundException.getMessage());
 
-        eventFindById = true;
+        eventExistById = true;
         request.setEventDate(LocalDateTime.now().plusHours(1));
         BadRequestException badRequestException = assertThrows(BadRequestException.class, () -> {
             adminEventsService.updateEvent(1L, request);
@@ -267,5 +281,61 @@ class AdminEventsServiceTest {
         assertEquals(event.getState(), EventsStates.CANCELED);
         assertEquals(event.getTitle(), eventFullDto.getTitle());
         assertEquals(0L, eventFullDto.getViews());
+    }
+
+    @Test
+    void deleteComment() {
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                adminEventsService.deleteComment(1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                adminEventsService.deleteComment(1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                adminEventsService.deleteComment(2L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        replyIsBelongsToComment = true;
+        assertDoesNotThrow(() -> adminEventsService.deleteComment(1L, 1L));
+    }
+
+    @Test
+    void deleteReply() {
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                adminEventsService.deleteReply(1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                adminEventsService.deleteReply(1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                adminEventsService.deleteReply(2L, 1L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                adminEventsService.deleteReply(1L, 1L, 1L));
+        assertEquals("The comment does not contain such a reply.", badRequestException.getMessage());
+        assertEquals("The comment with id = " + 1L + " does not contain a reply with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        replyIsBelongsToComment = true;
+        assertDoesNotThrow(() -> adminEventsService.deleteReply(1L, 1L, 1L));
     }
 }

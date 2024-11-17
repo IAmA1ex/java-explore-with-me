@@ -111,47 +111,16 @@ public class AdminEventsService {
     }
 
     public void deleteComment(Long eventId, Long commentId) {
-
-        if (eventRepository.existsById(eventId)) {
-            throw new NotFoundException("There is no such event.",
-                    "Event with id = " + eventId + " does not exist.");
-        }
-
-        if (commentRepository.existsById(commentId)) {
-            throw new NotFoundException("There is no such comment.",
-                    "Comment with id = " + commentId + " does not exist.");
-        }
-
-        if (!commentRepository.isBelongsToEvent(commentId, eventId)) {
-            throw new BadRequestException("The event does not contain such a comment.",
-                    "The event with id = " + eventId + " does not contain a comment with id = " + commentId + ".");
-        }
-
+        sgf.commentToEventCheck(eventId, commentId);
         commentRepository.deleteById(commentId);
     }
 
     public void deleteReply(Long eventId, Long commentId, Long replyId) {
-
-        if (eventRepository.existsById(eventId)) {
-            throw new NotFoundException("There is no such event.",
-                    "Event with id = " + eventId + " does not exist.");
-        }
-
-        if (commentRepository.existsById(commentId)) {
-            throw new NotFoundException("There is no such comment.",
-                    "Comment with id = " + commentId + " does not exist.");
-        }
-
-        if (!commentRepository.isBelongsToEvent(commentId, eventId)) {
-            throw new BadRequestException("The event does not contain such a comment.",
-                    "The event with id = " + eventId + " does not contain a comment with id = " + commentId + ".");
-        }
-
+        sgf.commentToEventCheck(eventId, commentId);
         if (!replyRepository.isBelongsToComment(replyId, commentId)) {
             throw new BadRequestException("The comment does not contain such a reply.",
                     "The comment with id = " + commentId + " does not contain a reply with id = " + replyId + ".");
         }
-
         replyRepository.deleteById(replyId);
     }
 }

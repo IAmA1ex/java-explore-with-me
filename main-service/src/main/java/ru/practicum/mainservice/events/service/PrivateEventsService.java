@@ -398,7 +398,7 @@ public class PrivateEventsService {
 
         if (!replyLikeRepository.existsByReplyIdAndUserId(replyId, userId)) {
             throw new NotFoundException("There is no such like.",
-                    "User with id = " + userId + " does not set like to comment with id = " + replyId  + ".");
+                    "User with id = " + userId + " does not set like to reply with id = " + replyId  + ".");
         }
 
         replyLikeRepository.deleteByReplyIdAndUserId(replyId, userId);

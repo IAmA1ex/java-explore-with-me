@@ -2,6 +2,7 @@ package ru.practicum.mainservice.events.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -10,8 +11,13 @@ import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
 import ru.practicum.mainservice.commentlikes.dao.CommentLikeRepository;
 import ru.practicum.mainservice.commentlikes.dto.CommentLikesMapper;
+import ru.practicum.mainservice.commentlikes.model.CommentLike;
 import ru.practicum.mainservice.comments.dao.CommentRepository;
 import ru.practicum.mainservice.comments.dto.CommentMapper;
+import ru.practicum.mainservice.comments.dto.FullCommentDto;
+import ru.practicum.mainservice.comments.dto.NewCommentDto;
+import ru.practicum.mainservice.comments.dto.UpdateCommentDto;
+import ru.practicum.mainservice.comments.model.Comment;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.*;
 import ru.practicum.mainservice.events.model.Event;
@@ -26,9 +32,14 @@ import ru.practicum.mainservice.participants.dto.ParticipationMapper;
 import ru.practicum.mainservice.participants.dto.ParticipationRequestDto;
 import ru.practicum.mainservice.participants.model.Participant;
 import ru.practicum.mainservice.replies.dao.ReplyRepository;
+import ru.practicum.mainservice.replies.dto.FullReplyDto;
+import ru.practicum.mainservice.replies.dto.NewReplyDto;
 import ru.practicum.mainservice.replies.dto.ReplyMapper;
+import ru.practicum.mainservice.replies.dto.UpdateReplyDto;
+import ru.practicum.mainservice.replies.model.Reply;
 import ru.practicum.mainservice.replylikes.dao.ReplyLikeRepository;
 import ru.practicum.mainservice.replylikes.dto.ReplyLikeMapper;
+import ru.practicum.mainservice.replylikes.model.ReplyLike;
 import ru.practicum.mainservice.user.dao.UserRepository;
 import ru.practicum.mainservice.user.dto.UserMapper;
 import ru.practicum.statsclient.StatsClient;
@@ -38,11 +49,9 @@ import ru.practicum.statsdto.StatDto;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.mockito.Mockito.*;
 import static ru.practicum.mainservice.RandomStuff.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -69,14 +78,20 @@ class PrivateEventsServiceTest {
     private StatsGeneralFunctionality agf;
 
     private Map<String, Long> hits;
+    private Map<Long, CommentLike> commentLikes;
+    private Map<Long, ReplyLike> replyLikes;
     private boolean userExistsById;
     private boolean categoryExistById;
     private boolean eventExistById;
+    private boolean commentLikeExist;
+    private boolean replyLikeExist;
     private boolean isInitiator;
     private Long countOfParticipants;
     private Long eventId;
     private EventsStates eventState;
     private EventRequestStatus eventRequestStatus;
+    private boolean commentExistById;
+    private boolean replyExistById;
 
     @BeforeEach
     void setUp() {
@@ -104,9 +119,15 @@ class PrivateEventsServiceTest {
                 replyRepository, eventMapper, commentMapper, replyMapper, participationMapper, sgf, agf);
 
         hits = new HashMap<>();
+        commentLikes = new HashMap<>();
+        replyLikes = new HashMap<>();
         userExistsById = false;
         categoryExistById = false;
         eventExistById = false;
+        commentExistById = false;
+        replyExistById = false;
+        commentLikeExist = false;
+        replyLikeExist = false;
         isInitiator = false;
         countOfParticipants = 0L;
         eventId = 1L;
@@ -206,6 +227,75 @@ class PrivateEventsServiceTest {
             }
             return participants;
         });
+
+        when(commentRepository.save(any())).thenAnswer(arg -> {
+            Comment comment = arg.getArgument(0);
+            comment.setId(1L);
+            return comment;
+        });
+
+        when(commentRepository.findById(anyLong())).thenAnswer(arg -> {
+            Long id = arg.getArgument(0);
+            if (commentExistById) return Optional.of(getComment(1L, 1L, 1L, 1L, 2L));
+            return Optional.empty();
+        });
+
+        when(commentRepository.existsById(anyLong())).thenAnswer(arg -> commentExistById);
+
+        Mockito.doNothing().when(commentRepository).deleteById(anyLong());
+
+        when(replyRepository.save(any())).thenAnswer(arg -> {
+            Reply reply = arg.getArgument(0);
+            reply.setId(1L);
+            return reply;
+        });
+
+        when(replyRepository.findById(anyLong())).thenAnswer(arg -> {
+            Long id = arg.getArgument(0);
+            if (replyExistById) return Optional.of(getReply(1L, 1L, 1L, 2L,
+                    1L, 1L, 3L));
+            return Optional.empty();
+        });
+
+        Mockito.doNothing().when(replyRepository).deleteById(anyLong());
+
+        when(commentLikeRepository.save(any())).thenAnswer(arg -> {
+            CommentLike commentLike = arg.getArgument(0);
+            commentLike.setId(1L);
+            commentLikes.put(1L, commentLike);
+            return commentLike;
+        });
+
+        when(commentLikeRepository.findAllByCommentId(anyLong())).thenAnswer(arg -> {
+            Long id = arg.getArgument(0);
+            return commentLikes.values().stream()
+                    .peek(cl -> cl.getComment().setId(id))
+                    .toList();
+        });
+
+        when(replyRepository.findAllByCommentId(anyLong())).thenAnswer(arg -> List.of());
+
+        when(commentLikeRepository.existsByCommentIdAndUserId(anyLong(), anyLong())).thenAnswer(arg ->
+                commentLikeExist);
+
+        Mockito.doNothing().when(commentLikeRepository).deleteByCommentIdAndUserId(anyLong(), anyLong());
+
+        when(replyLikeRepository.save(any())).thenAnswer(arg -> {
+            ReplyLike replyLike = arg.getArgument(0);
+            replyLike.setId(1L);
+            replyLikes.put(1L, replyLike);
+            return replyLike;
+        });
+
+        when(replyLikeRepository.findAllByReplyId(anyLong())).thenAnswer(arg -> {
+            Long id = arg.getArgument(0);
+            return replyLikes.values().stream()
+                    .peek(cl -> cl.getReply().setId(id))
+                    .toList();
+        });
+
+        when(replyLikeRepository.existsByReplyIdAndUserId(anyLong(), anyLong())).thenAnswer(arg ->
+                replyLikeExist);
     }
 
     @Test
@@ -477,5 +567,404 @@ class PrivateEventsServiceTest {
         assertEquals(result.getRejectedRequests().size(), 5);
         assertTrue(result.getRejectedRequests().stream()
                 .allMatch(r -> r.getStatus().equals(EventRequestStatus.REJECTED)));
+    }
+
+    @Test
+    void createComment() {
+        NewCommentDto newCommentDto = getNewCommentDto();
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.createComment(1L, 1L, newCommentDto));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.createComment(1L, 1L, newCommentDto));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        FullCommentDto fullCommentDto = privateEventsService.createComment(1L, 1L, newCommentDto);
+        assertNotNull(fullCommentDto);
+        assertEquals(1L, fullCommentDto.getId());
+        assertEquals(newCommentDto.getText(), fullCommentDto.getText());
+    }
+
+    @Test
+    void updateComment() {
+        UpdateCommentDto updateCommentDto = getUpdateCommentDto();
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateComment(1L, 1L, 1L, updateCommentDto));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateComment(1L, 1L, 1L, updateCommentDto));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateComment(1L, 1L, 1L, updateCommentDto));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.updateComment(1L, 2L, 1L, updateCommentDto));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.updateComment(1L, 1L, 1L, updateCommentDto));
+        assertEquals("The user cannot edit this comment.", badRequestException.getMessage());
+        assertEquals("The user with id = " + 1L + " cannot edit the comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullCommentDto fullCommentDto = privateEventsService.updateComment(2L, 1L, 1L, updateCommentDto);
+        assertNotNull(fullCommentDto);
+        assertEquals(1L, fullCommentDto.getId());
+        assertEquals(updateCommentDto.getText(), fullCommentDto.getText());
+    }
+
+    @Test
+    void deleteComment() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteComment(1L, 1L, 1L));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteComment(1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteComment(1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.deleteComment(1L, 2L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.deleteComment(1L, 1L, 1L));
+        assertEquals("The user cannot edit this comment.", badRequestException.getMessage());
+        assertEquals("The user with id = " + 1L + " cannot edit the comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        assertDoesNotThrow(() -> privateEventsService.deleteComment(2L, 1L, 1L));
+    }
+
+    @Test
+    void createReply() {
+        NewReplyDto newReplyDto = getNewReplyDto();
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.createReply(1L, 1L, 1L, newReplyDto));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.createReply(1L, 1L, 1L, newReplyDto));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.createReply(1L, 1L, 1L, newReplyDto));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.createReply(1L, 2L, 1L, newReplyDto));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullReplyDto fullReplyDto = privateEventsService.createReply(4L, 1L, 1L, newReplyDto);
+        assertNotNull(fullReplyDto);
+        assertEquals(1L, fullReplyDto.getId());
+        assertEquals(newReplyDto.getText(), fullReplyDto.getText());
+    }
+
+    @Test
+    void updateReply() {
+        UpdateReplyDto updateReplyDto = getUpdateReplyDto();
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateReply(1L, 1L, 1L, 1L, updateReplyDto));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateReply(1L, 1L, 1L, 1L, updateReplyDto));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateReply(1L, 1L, 1L, 1L, updateReplyDto));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.updateReply(1L, 2L, 1L, 1L, updateReplyDto));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.updateReply(1L, 1L, 1L, 1L, updateReplyDto));
+        assertEquals("There is no such reply.", notFoundException.getMessage());
+        assertEquals("Reply with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        replyExistById = true;
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.updateReply(1L, 1L, 2L, 1L, updateReplyDto));
+        assertEquals("The comment does not contain such a reply.", badRequestException.getMessage());
+        assertEquals("The comment with id = " + 2L + " does not contain a reply with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullReplyDto fullReplyDto = privateEventsService.updateReply(3L, 1L,
+                1L, 1L, updateReplyDto);
+        assertNotNull(fullReplyDto);
+        assertEquals(1L, fullReplyDto.getId());
+        assertEquals(updateReplyDto.getText(), fullReplyDto.getText());
+    }
+
+    @Test
+    void deleteReply() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteReply(1L, 1L, 1L, 1L));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.deleteReply(1L, 2L, 1L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.deleteReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such reply.", notFoundException.getMessage());
+        assertEquals("Reply with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        replyExistById = true;
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.deleteReply(1L, 1L, 2L, 1L));
+        assertEquals("The comment does not contain such a reply.", badRequestException.getMessage());
+        assertEquals("The comment with id = " + 2L + " does not contain a reply with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        assertDoesNotThrow(() -> privateEventsService.deleteReply(3L, 1L,
+                1L, 1L));
+    }
+
+    @Test
+    void setLikeComment() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeComment(1L, 1L, 1L));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeComment(1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeComment(1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.setLikeComment(1L, 2L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullCommentDto fullCommentDto = privateEventsService.setLikeComment(1L, 1L, 1L);
+        assertNotNull(fullCommentDto);
+        assertEquals(1L, fullCommentDto.getId());
+        assertFalse(fullCommentDto.getLikes().isEmpty());
+        assertEquals(1L, fullCommentDto.getLikes().size());
+    }
+
+    @Test
+    void removeLikeComment() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeComment(1L, 1L, 1L));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeComment(1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeComment(1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.removeLikeComment(1L, 2L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeComment(1L, 1L, 1L));
+        assertEquals("There is no such like.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not set like to comment with id = " + 1L + ".",
+                notFoundException.getReason());
+
+        commentLikeExist = true;
+        FullCommentDto fullCommentDto = privateEventsService.removeLikeComment(1L, 1L, 1L);
+        assertNotNull(fullCommentDto);
+        assertEquals(1L, fullCommentDto.getId());
+        assertTrue(fullCommentDto.getLikes().isEmpty());
+    }
+
+    @Test
+    void setLikeReply() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeReply(1L, 1L, 1L, 1L));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.setLikeReply(1L, 2L, 1L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.setLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such reply.", notFoundException.getMessage());
+        assertEquals("Reply with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        replyExistById = true;
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.setLikeReply(1L, 1L, 2L, 1L));
+        assertEquals("The comment does not contain such a reply.", badRequestException.getMessage());
+        assertEquals("The comment with id = " + 2L + " does not contain a reply with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        FullReplyDto fullReplyDto = privateEventsService.setLikeReply(1L, 1L, 1L, 1L);
+        assertNotNull(fullReplyDto);
+        assertEquals(1L, fullReplyDto.getId());
+        assertFalse(fullReplyDto.getLikes().isEmpty());
+        assertEquals(1L, fullReplyDto.getLikes().size());
+    }
+
+    @Test
+    void removeLikeReply() {
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeReply(1L, 1L, 1L, 1L));
+        assertNotNull(notFoundException);
+        assertEquals("There is no such user.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        userExistsById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such event.", notFoundException.getMessage());
+        assertEquals("Event with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        eventExistById = true;
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such comment.", notFoundException.getMessage());
+        assertEquals("Comment with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        commentExistById = true;
+        BadRequestException badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.removeLikeReply(1L, 2L, 1L, 1L));
+        assertEquals("The event does not contain such a comment.", badRequestException.getMessage());
+        assertEquals("The event with id = " + 2L + " does not contain a comment with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such reply.", notFoundException.getMessage());
+        assertEquals("Reply with id = " + 1L + " does not exist.", notFoundException.getReason());
+
+        replyExistById = true;
+        badRequestException = assertThrows(BadRequestException.class, () ->
+                privateEventsService.removeLikeReply(1L, 1L, 2L, 1L));
+        assertEquals("The comment does not contain such a reply.", badRequestException.getMessage());
+        assertEquals("The comment with id = " + 2L + " does not contain a reply with id = " + 1L + ".",
+                badRequestException.getReason());
+
+        notFoundException = assertThrows(NotFoundException.class, () ->
+                privateEventsService.removeLikeReply(1L, 1L, 1L, 1L));
+        assertEquals("There is no such like.", notFoundException.getMessage());
+        assertEquals("User with id = " + 1L + " does not set like to reply with id = " + 1L  + ".",
+                notFoundException.getReason());
+
+        replyLikeExist = true;
+        FullReplyDto fullReplyDto = privateEventsService.removeLikeReply(1L, 1L, 1L, 1L);
+        assertNotNull(fullReplyDto);
+        assertEquals(1L, fullReplyDto.getId());
+        assertTrue(fullReplyDto.getLikes().isEmpty());
     }
 }

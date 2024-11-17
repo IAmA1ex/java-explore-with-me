@@ -79,7 +79,7 @@ public class ServiceGeneralFunctionality {
 
     public Comment commentToEventCheck(Long eventId, Long commentId) {
 
-        if (eventRepository.existsById(eventId)) {
+        if (!eventRepository.existsById(eventId)) {
             throw new NotFoundException("There is no such event.",
                     "Event with id = " + eventId + " does not exist.");
         }
@@ -98,7 +98,7 @@ public class ServiceGeneralFunctionality {
 
     public Reply replyToCommentCheck(Long commentId, Long replyId) {
 
-        if (commentRepository.existsById(commentId)) {
+        if (!commentRepository.existsById(commentId)) {
             throw new NotFoundException("There is no such comment.",
                     "Comment with id = " + commentId + " does not exist.");
         }

@@ -6,6 +6,7 @@ import ru.practicum.mainservice.comments.dto.FullCommentDto;
 import ru.practicum.mainservice.comments.dto.NewCommentDto;
 import ru.practicum.mainservice.comments.dto.ShortCommentDto;
 import ru.practicum.mainservice.comments.dto.UpdateCommentDto;
+import ru.practicum.mainservice.comments.model.Comment;
 import ru.practicum.mainservice.compilations.dto.NewCompilationDto;
 import ru.practicum.mainservice.compilations.dto.UpdateCompilationRequest;
 import ru.practicum.mainservice.compilations.model.Compilation;
@@ -19,6 +20,7 @@ import ru.practicum.mainservice.participants.model.Participant;
 import ru.practicum.mainservice.replies.dto.FullReplyDto;
 import ru.practicum.mainservice.replies.dto.NewReplyDto;
 import ru.practicum.mainservice.replies.dto.UpdateReplyDto;
+import ru.practicum.mainservice.replies.model.Reply;
 import ru.practicum.mainservice.user.dto.NewUserRequest;
 import ru.practicum.mainservice.user.model.User;
 
@@ -200,7 +202,7 @@ public class RandomStuff {
 
     public static UpdateCommentDto getUpdateCommentDto() {
         return UpdateCommentDto.builder()
-                .text("text text text text text")
+                .text("update text text text text text")
                 .build();
     }
 
@@ -234,6 +236,27 @@ public class RandomStuff {
                 .text("text text text text text")
                 .likes(0L)
                 .replies(0L)
+                .build();
+    }
+
+    public static Comment getComment(Long id, Long eventId, Long initiatorId, Long categoryId, Long authorId) {
+        return Comment.builder()
+                .id(id)
+                .event(getEvent(eventId, initiatorId, categoryId))
+                .author(getUser(authorId))
+                .createdOn(LocalDateTime.now())
+                .text("text text text text text")
+                .build();
+    }
+
+    public static Reply getReply(Long id, Long commentId, Long eventId, Long initiatorId, Long categoryId,
+                                 Long commentAuthorId, Long authorId) {
+        return Reply.builder()
+                .id(id)
+                .comment(getComment(commentId, eventId, initiatorId, categoryId, commentAuthorId))
+                .author(getUser(authorId))
+                .createdOn(LocalDateTime.now())
+                .text("text text text text text")
                 .build();
     }
 }
