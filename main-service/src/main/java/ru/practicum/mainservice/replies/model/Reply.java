@@ -3,7 +3,6 @@ package ru.practicum.mainservice.replies.model;
 import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.mainservice.comments.model.Comment;
-import ru.practicum.mainservice.events.model.Event;
 import ru.practicum.mainservice.user.model.User;
 
 import java.time.LocalDateTime;

@@ -2,13 +2,11 @@ package ru.practicum.mainservice.events.dto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.statsclient.StatsClient;
 import ru.practicum.statsdto.NoteDto;
 import ru.practicum.statsdto.StatDto;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component

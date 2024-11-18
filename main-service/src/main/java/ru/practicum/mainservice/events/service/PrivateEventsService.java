@@ -378,6 +378,7 @@ public class PrivateEventsService {
         ReplyLike replyLike = ReplyLike.builder()
                 .user(user)
                 .reply(reply)
+                .createdOn(LocalDateTime.now())
                 .build();
 
         ReplyLike savedReplyLike = replyLikeRepository.save(replyLike);

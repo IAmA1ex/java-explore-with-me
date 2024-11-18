@@ -3,6 +3,8 @@ package ru.practicum.mainservice.replies.dto;
 import org.springframework.stereotype.Component;
 import ru.practicum.mainservice.replies.model.Reply;
 
+import java.util.List;
+
 @Component
 public class ReplyMapper {
 
@@ -18,6 +20,7 @@ public class ReplyMapper {
                 .text(reply.getText())
                 .author(reply.getAuthor().getName())
                 .createdOn(reply.getCreatedOn())
+                .likes(List.of())
                 .build();
     }
 }

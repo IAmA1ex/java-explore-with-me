@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Docker DB + Local modules" type="CompoundRunConfigurationType">
+    <toRun name="DB only" type="docker-deploy" />
+    <toRun name="Main DOCKERDEBUG" type="SpringBootApplicationConfigurationType" />
+    <toRun name="Stats DOCKERDEBUG" type="SpringBootApplicationConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>
