@@ -3134,7 +3134,6 @@
 									"    pm.response.to.be.json;",
 									"});",
 									"",
-									"const source = JSON.parse(pm.request.body.raw);",
 									"const target = pm.response.json();",
 									"const userReplyLike1 = pm.collectionVariables.get('userReplyLike1');",
 									"const userReplyAuthor1 = pm.collectionVariables.get('userReplyAuthor1');",
