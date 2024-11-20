@@ -3,6 +3,7 @@ package ru.practicum.mainservice.events.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.mainservice.categories.dao.CategoryRepository;
 import ru.practicum.mainservice.categories.model.Category;
 import ru.practicum.mainservice.commentlikes.dao.CommentLikeRepository;
@@ -345,6 +346,7 @@ public class PrivateEventsService {
         return fullCommentDto;
     }
 
+    @Transactional
     public FullCommentDto removeLikeComment(Long userId, Long eventId, Long commentId) {
 
         if (!userRepository.existsById(userId))
@@ -388,6 +390,7 @@ public class PrivateEventsService {
         return fullReplyDto;
     }
 
+    @Transactional
     public FullReplyDto removeLikeReply(Long userId, Long eventId, Long commentId, Long replyId) {
 
         if (!userRepository.existsById(userId))
