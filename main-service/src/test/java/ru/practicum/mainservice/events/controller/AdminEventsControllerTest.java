@@ -1,4 +1,4 @@
-package ru.practicum.mainservice.events;
+package ru.practicum.mainservice.events.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.mainservice.categories.dto.CategoryMapper;
-import ru.practicum.mainservice.events.controller.AdminEventsController;
 import ru.practicum.mainservice.events.dto.EventMapper;
 import ru.practicum.mainservice.events.dto.UpdateEventAdminRequest;
 import ru.practicum.mainservice.events.model.Event;
@@ -25,9 +24,9 @@ import ru.practicum.mainservice.user.dto.UserMapper;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.practicum.mainservice.RandomStuff.getEvent;
 import static ru.practicum.mainservice.RandomStuff.getUpdateEventAdminRequest;
@@ -86,6 +85,34 @@ class AdminEventsControllerTest {
                             .content(objectMapper.writeValueAsString(updateEventAdminRequest)))
                     .andExpect(status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(100));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void deleteComment() {
+        try {
+            doNothing().when(adminEventsService).deleteComment(anyLong(), anyLong());
+
+            mockMvc.perform(delete("/admin/events/{eventId}/comments/{commentId}",
+                            100L, 100L)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().is(204));
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    void deleteReply() {
+        try {
+            doNothing().when(adminEventsService).deleteReply(anyLong(), anyLong(), anyLong());
+
+            mockMvc.perform(delete("/admin/events/{eventId}/comments/{commentId}/replies/{replyId}",
+                            100L, 100L, 100L)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().is(204));
         } catch (Exception e) {
             fail(e.getMessage());
         }

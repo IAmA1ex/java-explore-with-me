@@ -31,6 +31,8 @@ public class EventShortDto {
 
     private boolean paid;
 
+    private Long comments;
+
     private String title;
 
     private Long views;

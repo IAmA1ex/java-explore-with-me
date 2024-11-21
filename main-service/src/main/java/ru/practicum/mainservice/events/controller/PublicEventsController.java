@@ -4,9 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.mainservice.comments.dto.FullCommentDto;
+import ru.practicum.mainservice.comments.dto.ShortCommentDto;
 import ru.practicum.mainservice.events.service.PublicEventsService;
 import ru.practicum.mainservice.events.dto.EventFullDto;
 import ru.practicum.mainservice.events.dto.EventShortDto;
+import ru.practicum.mainservice.replies.dto.FullReplyDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,5 +44,23 @@ public class PublicEventsController {
     public EventFullDto getEvent(@PathVariable final Long id,
                                  HttpServletRequest request) {
         return publicEventsService.getEvent(id, request);
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public List<ShortCommentDto> getCommentsForEvent(@PathVariable final Long eventId) {
+        return publicEventsService.getCommentsForEvent(eventId);
+    }
+
+    @GetMapping("/{eventId}/comments/{commentId}")
+    public FullCommentDto getComment(@PathVariable final Long eventId,
+                                     @PathVariable final Long commentId) {
+        return publicEventsService.getComment(eventId, commentId);
+    }
+
+    @GetMapping("/{eventId}/comments/{commentId}/replies/{replyId}")
+    public FullReplyDto getReply(@PathVariable final Long eventId,
+                                 @PathVariable final Long commentId,
+                                 @PathVariable final Long replyId) {
+        return publicEventsService.getReply(eventId, commentId, replyId);
     }
 }

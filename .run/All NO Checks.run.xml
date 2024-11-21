@@ -8,8 +8,6 @@
         <option name="upForceRecreate" value="true" />
       </settings>
     </deployment>
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="install" run_configuration_type="MavenRunConfiguration" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>

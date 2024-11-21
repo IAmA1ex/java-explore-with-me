@@ -22,6 +22,7 @@ public class EventMapper {
                 .id(event.getId())
                 .initiator(userMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.isPaid())
+                .comments(0L)
                 .title(event.getTitle())
                 .build();
     }
@@ -57,6 +58,7 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .publishedOn(event.getPublishedOn())
                 .requestModeration(event.isRequestModeration())
+                .comments(0L)
                 .state(event.getState())
                 .title(event.getTitle())
                 .build();

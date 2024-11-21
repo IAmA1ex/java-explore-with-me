@@ -3,6 +3,7 @@ package ru.practicum.mainservice.events.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.mainservice.comments.dao.CommentRepository;
 import ru.practicum.mainservice.events.dao.EventRepository;
 import ru.practicum.mainservice.events.dto.StatsGeneralFunctionality;
 import ru.practicum.mainservice.events.dto.EventFullDto;
@@ -14,6 +15,7 @@ import ru.practicum.mainservice.events.model.EventsStatesAction;
 import ru.practicum.mainservice.exception.errors.BadRequestException;
 import ru.practicum.mainservice.exception.errors.ConflictException;
 import ru.practicum.mainservice.exception.errors.NotFoundException;
+import ru.practicum.mainservice.replies.dao.ReplyRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +26,8 @@ import java.util.List;
 public class AdminEventsService {
 
     private final EventRepository eventRepository;
+    private final CommentRepository commentRepository;
+    private final ReplyRepository replyRepository;
     private final EventMapper eventMapper;
     private final ServiceGeneralFunctionality sgf;
     private final StatsGeneralFunctionality agf;
@@ -44,7 +48,8 @@ public class AdminEventsService {
                 size);
         List<EventFullDto> eventFullDtos = events.stream().map(e -> {
             EventFullDto eventFullDto = eventMapper.toEventFullDto(e);
-            eventFullDto.setConfirmedRequests(getConfirmedRequests(e.getId()));
+            eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(e.getId()));
+            eventFullDto.setComments(sgf.getCountOfComments(e.getId()));
             eventFullDto.setViews(agf.getViews(e.getCreatedOn(), String.format("/events/%d", e.getId()), false));
             return eventFullDto;
         }).toList();
@@ -94,7 +99,8 @@ public class AdminEventsService {
 
         event = eventRepository.save(event);
         EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
-        eventFullDto.setConfirmedRequests(getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setConfirmedRequests(sgf.getConfirmedRequests(eventFullDto.getId()));
+        eventFullDto.setComments(sgf.getCountOfComments(eventFullDto.getId()));
         eventFullDto.setViews(agf.getViews(eventFullDto.getCreatedOn(),
                 String.format("/events/%d", eventFullDto.getId()), false));
 
@@ -102,7 +108,17 @@ public class AdminEventsService {
         return eventFullDto;
     }
 
-    private Long getConfirmedRequests(Long eventId) {
-        return eventRepository.countOfParticipants(eventId);
+    public void deleteComment(Long eventId, Long commentId) {
+        sgf.commentToEventCheck(eventId, commentId);
+        commentRepository.deleteById(commentId);
+    }
+
+    public void deleteReply(Long eventId, Long commentId, Long replyId) {
+        sgf.commentToEventCheck(eventId, commentId);
+        if (!replyRepository.isBelongsToComment(replyId, commentId)) {
+            throw new BadRequestException("The comment does not contain such a reply.",
+                    "The comment with id = " + commentId + " does not contain a reply with id = " + replyId + ".");
+        }
+        replyRepository.deleteById(replyId);
     }
 }
